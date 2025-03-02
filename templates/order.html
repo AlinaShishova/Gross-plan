@@ -1,11 +1,31 @@
 {% extends 'base.html' %}
 {% block sub_content %}
+<script src="https://kit.fontawesome.com/a076d05399.js"></script>
 
 <div class="container my-4">
     <div class="text-center">
         <h1 class="h3 mb-3 fw-normal">Список заказов</h1>
     </div>
+   
+    <div class="container">
+        <div class="row justify-content-center mt-4">
+            <!-- Поисковая строка -->
+            <div class="col-md-6">
+                
+                <div class="input-group">
+                    <input type="text" id="search" class="form-control" placeholder="Введите ШПЗ">
+                    <button class="btn btn-dark" id="updateButton">Обновить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-5"> 
+
+    </div>
+    
+    
     <div class="table-responsive" style="max-width: 80%; margin: 0 auto;">
+            
         <table class="table">
             <thead class="table-light">
             <tr>

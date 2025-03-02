@@ -3,22 +3,21 @@
 {% block sub_content %}
 <form method = "POST">
     <div class="container d-flex justify-content-center align-items-center vh-100">
-        <div class="w-50">
+        <div class="w-50 h-50 ">
             <form class="p-4 border rounded shadow">
                 <div class="text-center">
-                    <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+                    <h1 class="h3 mb-3 fw-normal">Авторизация</h1>
                 </div>
                 <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="username" name = "username" aria-describedby="Enter">
-                    <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+                    <label for="username" class="form-label">Логин</label>
+                    <input type="text" class="form-control" id="username" name = "username">
                 </div>
                 <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
+                    <label for="password" class="form-label">Пароль</label>
                     <input type="password" class="form-control" id="password" name="password">
                 </div>
                
-                <button type="submit" class="btn btn-primary w-100">Submit</button>
+                <button type="submit" class="btn btn-dark w-100">Submit</button>
             </form>
         </div>
     </div>

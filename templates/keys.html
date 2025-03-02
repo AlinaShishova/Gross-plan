@@ -1,4 +1,42 @@
 {% extends 'base.html' %}
 {% block sub_content %}
+<div class="container my-4">
+    <div class="text-center">
+        <h1 class="h3 mb-3 fw-normal">Состав изделия</h1>
+    </div>
 
+    <div class="table-responsive" style="max-width: 80%; margin: 0 auto;">
+            
+        <table class="table">
+            <thead class="table-light">
+                <tr>
+                    <th>Выбрать</th>
+                    <th>Наименование</th>
+                    <th>Обозначение по КД</th>
+                    <th>Количество в сборке</th>
+                    <th>Межцеховой маршрут</th>
+                    <th>Класс</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in results %}
+                    <tr>
+                        <td><input type="checkbox" name="selected" value="{{ row[0] }}"></td>
+                        <td><a href="/?dm_index_where={{ row[0] }}">{{ row[1] }}</a></td>
+                        <td>{{ row[2] }}</td>
+                        <td>{{ row[3] }}</td>
+                        <td>{{ row[4] }}</td>
+                        <td>{{ row[5] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <input type="submit" value="Применить">
+    </form>
+
+    <!-- Кнопка "Назад" с сохранением текущего параметра dm_index_where -->
+    <a href="/?dm_index_where={{ old_dm_index_where }}"><button>Назад</button></a>
+</body>
+</html>
+   
 {% endblock %}
