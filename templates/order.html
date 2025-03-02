@@ -1,4 +1,41 @@
 {% extends 'base.html' %}
 {% block sub_content %}
-<h1>Список заказов</h1>
+
+<div class="container my-4">
+    <div class="text-center">
+        <h1 class="h3 mb-3 fw-normal">Список заказов</h1>
+    </div>
+    <div class="table-responsive" style="max-width: 80%; margin: 0 auto;">
+        <table class="table">
+            <thead class="table-light">
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">Столбец1</th>
+                <th scope="col">Столбец2</th>
+                <th scope="col">Столбец3</th>
+            </tr>
+            </thead>
+            <tbody class="table-group-divider">
+            <tr>
+                <th scope="row">1</th>
+                <td>Пример1</td>
+                <td>Пример1</td>
+                <td>Пример1</td>
+            </tr>
+            <tr>
+                <th scope="row">2</th>
+                <td>Пример2</td>
+                <td>Пример2</td>
+                <td>Пример2</td>
+            </tr>
+            <tr>
+                <th scope="row">3</th>
+                <td>Пример3</td>
+                <td>Пример3</td>
+                <td>Пример3</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}
