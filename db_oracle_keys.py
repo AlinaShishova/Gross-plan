@@ -9,9 +9,9 @@ def execute_query(dm_index_where):
     try:
         # Подключение к базе данных Oracle с использованием настроек из config.py
         connection = oracledb.connect(
-            user=Config.ORACLE_USER, 
-            password=Config.ORACLE_PASSWORD, 
-            dsn=Config.ORACLE_DSN
+            user=Config.ORACLE_CONFIG["user"], 
+            password=Config.ORACLE_CONFIG["passwird"], 
+            dsn=Config.ORACLE_CONFIG["dns"]
         )
         cursor = connection.cursor()
 

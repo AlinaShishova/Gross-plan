@@ -43,17 +43,4 @@ def get_user_by_username(username):
         print(f"Ошибка при получении пользователя: {e}")
     return None
 
-def get_oracle_connection():
-    """Создает подключение к Oracle, используя настройки из config.py."""
-    try:
-        dsn = f"{Config.ORACLE_CONFIG['host']}:{Config.ORACLE_CONFIG['port']}/{Config.ORACLE_CONFIG['database']}"
-        connection = cx_Oracle.connect(
-            user=Config.ORACLE_CONFIG["user"],
-            password=Config.ORACLE_CONFIG["password"],
-            dsn=dsn
-        )
-        return connection
-    except cx_Oracle.Error as e:
-        print(f"Ошибка при подключении к Oracle: {e}")
-        raise
 
