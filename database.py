@@ -1,6 +1,5 @@
 import psycopg2
 from werkzeug.security import generate_password_hash
-import cx_Oracle
 from config import Config  
 
 def connect_db():

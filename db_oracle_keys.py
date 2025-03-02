@@ -2,7 +2,7 @@ import oracledb
 from config import Config  # Импортируем настройки из config.py
 
 # Инициализация клиента Oracle
-#oracledb.init_oracle_client(lib_dir="C:/instanclient/instantclient_19_25")
+oracledb.init_oracle_client(lib_dir="C:/instanclient/instantclient_19_25")
 
 def execute_query(dm_index_where):
     """Функция для выполнения SQL-запроса в Oracle"""
@@ -10,9 +10,12 @@ def execute_query(dm_index_where):
         # Подключение к базе данных Oracle с использованием настроек из config.py
         connection = oracledb.connect(
             user=Config.ORACLE_CONFIG["user"], 
-            password=Config.ORACLE_CONFIG["passwird"], 
-            dsn=Config.ORACLE_CONFIG["dns"]
+            password=Config.ORACLE_CONFIG["password"], 
+            dsn=Config.ORACLE_CONFIG["dsn"]
         )
+
+
+
         cursor = connection.cursor()
 
         # SQL-запрос
