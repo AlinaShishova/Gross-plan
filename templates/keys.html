@@ -81,7 +81,7 @@
             fetch('/delete_entry', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id: assembly_id })
+                body: JSON.stringify({ assembly_id: id})
             })
             .then(response => response.json())
             .then(data => {

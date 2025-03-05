@@ -89,7 +89,7 @@ def save_dates():
 @app.route('/delete_entry', methods=['POST'])
 def delete_entry():
     data = request.json
-    id = data['assembly_id']
+    id = data.get('assembly_id')
 
     try:
         with connect_db() as conn:
