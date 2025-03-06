@@ -1,27 +1,42 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="/">Валовый план</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-        {% if session.login %}
-        <div class="navbar-nav">
-            <a class="nav-link" href="/cubs">Кубики</a>
-            <a class="nav-link" href="/order">Список заказов</a>
-            <a class="nav-link" href="/keys">Выбор ключевых частей</a>
-          </div>
-        {% endif %}
 
+   <!-- Кнопка открытия/закрытия меню -->
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+      <div class="d-flex align-items-center m-2">
+        <a class="navbar-brand" href="">Валовый план</a>
+        
         {% if session.login %}
-        <div class="navbar-nav ms-auto">
-            <a class="nav-link" href="/logout">Выход</a>
-        </div>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                data-bs-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" 
+                aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        {% endif %}
+      </div>
+
+      <div class="navbar-nav ms-auto">
+        {% if session.login %}
+          <a class="nav-link text-white" href="/logout">Выход</a>
         {% else %}
-        <div class="navbar-nav ms-auto">
-            <a class="nav-link" href="/login">Авторизация</a>
-        </div>
+          <a class="nav-link text-white" href="/login">Авторизация</a>
         {% endif %}
       </div>
     </div>
-  </nav>
+
+  <!-- Выпадающее меню -->
+  {% if session.login %}
+  <div class="collapse navbar-collapse" id="navbarToggleExternalContent">
+    <div class="bg-dark p-4">     
+      <ul class="navbar-nav me-auto mb-2">
+        <li class="nav-item"><a href="/order" class="nav-link text-white">Схемы</a></li>
+        <li class="nav-item"><a href="/" class="nav-link text-white">Оборудование</a></li>
+        <li class="nav-item"><a href="/" class="nav-link text-white">Рабочие</a></li>
+        <li class="nav-item"><a href="/" class="nav-link text-white">Рабочие центры</a></li>
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+  
+</nav>
+  
+

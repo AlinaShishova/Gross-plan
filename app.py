@@ -78,7 +78,7 @@ def save_dates():
     try:
         with connect_db() as conn:
             with conn.cursor() as cursor:
-                cursor.execute("INSERT INTO assembly (assembly_id, assembly_name, start_date, end_date) VALUES (%s,%s, %s, %s) ON CONFLICT (id) DO UPDATE SET start_date = EXCLUDED.start_date, end_date = EXCLUDED.end_date", 
+                cursor.execute("INSERT INTO assembly (assembly_id, assembly_name, start_date, end_date) VALUES (%s,%s, %s, %s) ON CONFLICT (assembly_id) DO UPDATE SET start_date = EXCLUDED.start_date, end_date = EXCLUDED.end_date", 
                     (id, name, start_date, end_date))
         conn.commit()
         return jsonify({'status': 'success'})
