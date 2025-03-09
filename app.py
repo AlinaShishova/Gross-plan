@@ -3,7 +3,7 @@ from flask_bootstrap import Bootstrap5
 from database import get_user_by_username
 from werkzeug.security import check_password_hash
 from config import Config  
-import db_oracle_keys
+import db_oracle
 from database import connect_db
 
 app = Flask(__name__)
@@ -26,7 +26,8 @@ def cubs():
 def order():
     if 'login' not in session:
         return redirect(url_for('login'))
-    return render_template('order.html')
+    results = db_oracle.execute_query("order")
+    return render_template('order.html', results=results)
 
 
 
@@ -64,7 +65,7 @@ def keys():
         old_dm_index_where = dm_index_where
         
         # Получаем результаты из базы данных с помощью функции из db.py
-        results = db_oracle_keys.execute_query(dm_index_where)
+        results = db_oracle.execute_query("keys", {"dm_index_where":dm_index_where})
 
         # Рендерим HTML-страницу с результатами
         return render_template('keys.html', results=results, old_dm_index_where=old_dm_index_where)

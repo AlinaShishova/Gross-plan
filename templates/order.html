@@ -1,59 +1,44 @@
 {% extends 'base.html' %}
 {% block sub_content %}
-<script src="https://kit.fontawesome.com/a076d05399.js"></script>
 
 <div class="container my-4">
     <div class="text-center">
-        <h1 class="h3 mb-3 fw-normal">Список заказов</h1>
+        <h1 class="h3 mb-5 fw-normal">Схемы изготовления</h1>
     </div>
-   
-    <div class="container">
-        <div class="row justify-content-center mt-4">
-            <!-- Поисковая строка -->
-            <div class="col-md-6">
-                
-                <div class="input-group">
-                    <input type="text" id="search" class="form-control" placeholder="Введите ШПЗ">
-                    <button class="btn btn-dark" id="updateButton">Обновить</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    
+    <div class="d-flex justify-content-center gap-5 flex-wrap mt-5">
+        <button class="btn btn-outline-dark" type="button">Создать</button>
+        <button class="btn btn-outline-dark" type="button">Редактировать</button>
+        <button class="btn btn-outline-dark" type="button">Удалить</button>
+        <button class="btn btn-outline-dark" type="button">Сменить статус</button>
+        <button class="btn btn-outline-dark" type="button">Делегировать</button>
+      </div>
+
     <div class="row mt-5"> 
 
     </div>
     
     
-    <div class="table-responsive" style="max-width: 80%; margin: 0 auto;">
+    <div class="table-responsive" style="max-width: 90%; margin: 0 auto;">
             
         <table class="table">
             <thead class="table-light">
             <tr>
-                <th scope="col"></th>
-                <th scope="col">Столбец1</th>
-                <th scope="col">Столбец2</th>
-                <th scope="col">Столбец3</th>
+                <th scope="col">ШПЗ</th>
+                <th scope="col">Наименование заказа</th>
+                <th scope="col">Спецификация</th>
+                <th scope="col">Старт</th>
             </tr>
             </thead>
             <tbody class="table-group-divider">
+                {% for row in results %}
             <tr>
-                <th scope="row">1</th>
-                <td>Пример1</td>
-                <td>Пример1</td>
-                <td>Пример1</td>
+                <th>{{ row[3] }}</th>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[4] }}</td>
+                <td></td>
             </tr>
-            <tr>
-                <th scope="row">2</th>
-                <td>Пример2</td>
-                <td>Пример2</td>
-                <td>Пример2</td>
-            </tr>
-            <tr>
-                <th scope="row">3</th>
-                <td>Пример3</td>
-                <td>Пример3</td>
-                <td>Пример3</td>
-            </tr>
+            {% endfor %}
             </tbody>
         </table>
     </div>
