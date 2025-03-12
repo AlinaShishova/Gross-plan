@@ -3,7 +3,8 @@ from config import Config # Импортируем настройки подкл
 from queries import queries # Импортируем словарь с запросами
 
 # Инициализация клиента Oracle
-oracledb.init_oracle_client(lib_dir="C:/oracle/instantclient/instantclient_19_25")
+oracle_path= Config.ORACLE_CONFIG["path"]
+oracledb.init_oracle_client(lib_dir=oracle_path)
 
 
 def execute_query(query_name, params=None):

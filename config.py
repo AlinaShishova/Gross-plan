@@ -16,5 +16,6 @@ class Config:
         "user": os.environ.get('ORACLE_USER') or "oracle_user",
         "password": os.environ.get('ORACLE_PASSWORD') or "oracle_password",
         "dsn": os.environ.get('ORACLE_DSN') or "oracle_host:1521/db1p",
-        "database": os.environ.get('ORACLE_DATABASE') or "oracle_db"
+        "database": os.environ.get('ORACLE_DATABASE') or "oracle_db",
+        "path": os.environ.get('ORACLE_PATH'),
     }
