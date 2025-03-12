@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block sub_content %}
+
+<div class="container my-4">
+    <div class="text-center">
+        <h1 class="h3 mb-5 fw-normal">Спецификации</h1>
+    </div>
+    
+    <div class="d-flex justify-content-center gap-5 flex-wrap mt-5">
+        <button class="btn btn-outline-dark" type="button">Добавить</button>
+        <button class="btn btn-outline-dark" type="button">Редактировать</button>
+        <button class="btn btn-outline-dark" type="button">Удалить</button>
+        <button class="btn btn-outline-dark" type="button">Стоп</button>
+   
+      </div>
+
+    <div class="row mt-5"> 
+
+    </div>
+    
+    
+    <div class="table-responsive" style="max-width: 90%; margin: 0 auto;">
+            
+        <table class="table">
+            <thead class="table-light">
+                <tr>
+                    <th>Наименование (Обозначение)</th>
+                    <th>Тип</th>
+                    <th>Количество</th>
+                    <th>Начало</th>
+                    <th>Примечание</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in results %}
+                <tr>
+                    <td>{{ row[4] }}</td> <!-- DSE_NAME -->
+                    <td>{{ row[5] }}</td> <!-- TYPE_SPEC -->
+                    <td>{{ row[6] }}</td> <!-- NUM -->
+                    <td>{{ row[7] }}</td> <!-- DATE_GENERAL -->
+                    <td>{{ row[8] }}</td> <!-- TITLE -->
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

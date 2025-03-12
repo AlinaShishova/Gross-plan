@@ -102,5 +102,14 @@ def delete_entry():
         return jsonify({'status': 'error', 'message': str(e)})
 
 
+@app.route('/spec/')
+def spec():
+    if 'login' not in session:
+        return redirect(url_for('login'))
+    results = db_oracle.execute_query("spec")
+    return render_template('spec.html', results=results)
+
+
+
 if __name__ =='__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
