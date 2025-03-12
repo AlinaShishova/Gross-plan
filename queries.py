@@ -26,4 +26,31 @@ queries = {
         FROM CUBE_MAIN CM, PROGRAMM_ORDER PO
         WHERE CM.ORDER_ID = PO.IND
         AND CM.STATUS IN (0, 1)""",
+    "spec":"""
+            SELECT 
+                CS.CUBE_SPECIFICATION_ID,
+                CS.CUBE_ID,
+                CS.STOP,
+                CS.DSE_ID,
+                (SELECT 
+                    DM.DM_NAME || ' ' || DM.DM_DRAFT
+                FROM 
+                    DSE_MAIN DM
+                WHERE 
+                    DM.DM_INDEX = CS.DSE_ID) AS DSE_NAME,
+                (SELECT 
+                    (SELECT PDT.NAME FROM PROGRAMM_DSE_TYPES PDT WHERE PDT.IND = PD.TYPE_)
+                FROM 
+                    PROGRAMM_DSE PD
+                WHERE PD.IND = CS.SPEC_ID) AS TYPE_SPEC,
+                CS.NUM,
+                CS.DATE_GENERAL,
+                (SELECT PD.TITLE FROM PROGRAMM_DSE PD WHERE PD.IND = CS.SPEC_ID) AS TITLE
+
+            FROM 
+                CUBE_SPECIFICATION CS
+            WHERE 
+                CS.CUBE_ID = 1 # Тут параметр от формы!!!
+    
+    """,
 }
