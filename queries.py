@@ -1,5 +1,5 @@
 queries = {
-    "keys":"""SELECT d.dm_index,
+    "key":"""SELECT d.dm_index,
                d.dm_name as dse_name,
                d.dm_draft as dse_draft_number,
                a.da_num as count_in_assembling,
@@ -50,7 +50,7 @@ queries = {
             FROM 
                 CUBE_SPECIFICATION CS
             WHERE 
-                CS.CUBE_ID = 1 # Тут параметр от формы!!!
+                CS.CUBE_ID = 1 -- Тут параметр от формы!!!
     
     """,
 }

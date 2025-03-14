@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 {% block sub_content %}
+<style>
+    .btn-fixied{
+        width: 150px;
+    }
+</style>
 
 <div class="container my-4">
     <div class="text-center">
@@ -7,10 +12,10 @@
     </div>
     
     <div class="d-flex justify-content-center gap-5 flex-wrap mt-5">
-        <button class="btn btn-outline-dark" type="button">Добавить</button>
-        <button class="btn btn-outline-dark" type="button">Редактировать</button>
-        <button class="btn btn-outline-dark" type="button">Удалить</button>
-        <button class="btn btn-outline-dark" type="button">Стоп</button>
+        <button class="btn btn-outline-dark btn-fixied" type="button">Добавить</button>
+        <button class="btn btn-outline-dark btn-fixied" type="button">Редактировать</button>
+        <button class="btn btn-outline-dark btn-fixied" type="button">Удалить</button>
+        <button class="btn btn-outline-dark btn-fixied" type="button">Стоп</button>
    
       </div>
 
@@ -24,6 +29,7 @@
         <table class="table">
             <thead class="table-light">
                 <tr>
+                    <th>Стоп</th>
                     <th>Наименование (Обозначение)</th>
                     <th>Тип</th>
                     <th>Количество</th>
@@ -34,10 +40,17 @@
             <tbody>
                 {% for row in results %}
                 <tr>
+                    <td>
+                        {% if row[2]==1  %}
+                            <img src = "/static/images/stop_active.png" alt = "Активный" width="30">
+                        {% else %}
+                            <img src = "/static/images/stop_inactive.png" alt = "Неактивный" width="30">
+                        {% endif %}
+                    </td> <!-- CS.STOP -->
                     <td>{{ row[4] }}</td> <!-- DSE_NAME -->
                     <td>{{ row[5] }}</td> <!-- TYPE_SPEC -->
                     <td>{{ row[6] }}</td> <!-- NUM -->
-                    <td>{{ row[7] }}</td> <!-- DATE_GENERAL -->
+                    <td>{{ row[7].strftime("%d-%m-%Y") }}</td> <!-- DATE_GENERAL -->
                     <td>{{ row[8] }}</td> <!-- TITLE -->
                 </tr>
                 {% endfor %}
