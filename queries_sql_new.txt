@@ -1,0 +1,42 @@
+-- Выбор ПУ:
+SELECT PS.IND, -- ИНДЕКС ПЛАТЕЖНОГО УЗЛА ПО НЕМУ ПЕРЕХОД НА СЛЕДУЮЩУЮ СТРАНИЧКУ
+       PO.CODE_BILL || '/' || PO.SUBCODE_BILL AS ORDER_NUM, --ЩПЗ
+       PO.CONTRACT_NUM, -- № КОНТРАКТА
+       PO.CUSTOMER_NAME, -- ЗАКАЗЧИК
+       PS.ORDER_NAME || ' ' || PS.ORDER_DRAFT AS NAME_DRAFT_NUM, -- НАИМЕНОВАНИЕ, ОБОЗНАЧЕНИЕ
+       PS.NUM, -- КОЛ-ВО
+       (SELECT COUNT(PDL.IND)|| '/0' FROM PROGRAMM_DSE_LINK PDL WHERE PDL.PROGRAMM_SUBORDER_ID = PS.IND) AS SP_COUNT -- СП
+FROM
+       PROGRAMM_ORDER PO,
+       PROGRAMM_SUBORDER PS
+WHERE 
+       PS.PROGRAMM_ORDER = PO.IND AND 
+       UPPER(PO.CODE_BILL || '/' || PO.SUBCODE_BILL) LIKE ('1611/%')  -- ПАРАМЕТР ДЛЯ ФИЛЬТРАЦИИ, НУЖНО ПОДУМАТЬ КАК ПЕРЕДАВАТЬ
+       AND PO.STATUS = 2
+ORDER BY 
+      PO.CODE_BILL, 
+      PO.SUBCODE_BILL,
+      PO.SHORT_NAME
+
+-- Спецификации:
+SELECT CS.CUBE_SPECIFICATION_ID, -- ИНДЕКС СПЕЦИФИКАЦИИ (СКРЫТ)
+       CS.STOP, -- ЗНАЧЕК В РАБОТЕ = 1 /ОСТАНОВЛЕН = 0
+       CS.DSE_ID, -- ИНДЕКС ДСЕ ДЛЯ ПЕРЕХОДА К СОСТАВУ ИЗДЕЛИЯ (СКРЫТ)
+        (SELECT DM.DM_NAME || ' ' || DM.DM_DRAFT
+         FROM DSE_MAIN DM
+         WHERE DM.DM_INDEX = CS.DSE_ID) AS DSE_NAME, -- НАИМЕНОВАНИЕ, ОБОЗНАЧЕНИЕ
+        (SELECT (SELECT PDT.NAME FROM PROGRAMM_DSE_TYPES PDT WHERE PDT.IND = PD.TYPE_)
+         FROM PROGRAMM_DSE PD
+         WHERE PD.IND = CS.SPEC_ID) AS TYPE_SPEC, -- ТИП
+       CS.NUM, -- КОЛ-ВО
+       CS.DATE_GENERAL, -- НАЧАЛО
+       (SELECT PD.TITLE FROM PROGRAMM_DSE PD WHERE PD.IND = CS.SPEC_ID) AS TITLE, -- ПРИМЕЧАНИЕ
+       CS.SPEC_ID -- ИНДЕКС СПЕЦИФИКАЦИИ (СКРЫТ, НА ВСЯКИЙ СЛУЧАЙ)
+FROM 
+    CUBE_SPECIFICATION CS
+WHERE 
+    CS.SPEC_ID IN (SELECT PDL.IND
+                   FROM PROGRAMM_DSE_LINK PDL
+                   WHERE PDL.PROGRAMM_SUBORDER_ID = 244803) -- ПАРАМЕТРЫ ФИЛЬТРАЦИИ (ПЕРЕЛАЕТСЯ ИНДЕКС ПЛАТЕЖНОГО УЗЛА)
+
+Выбор спецификации:
