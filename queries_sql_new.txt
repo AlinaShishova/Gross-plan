@@ -11,7 +11,7 @@ FROM
        PROGRAMM_SUBORDER PS
 WHERE 
        PS.PROGRAMM_ORDER = PO.IND AND 
-       UPPER(PO.CODE_BILL || '/' || PO.SUBCODE_BILL) LIKE ('1611/%')  -- ПАРАМЕТР ДЛЯ ФИЛЬТРАЦИИ, НУЖНО ПОДУМАТЬ КАК ПЕРЕДАВАТЬ
+       UPPER(PO.CODE_BILL || '/' || PO.SUBCODE_BILL) LIKE ('1611/%')  -- ПАРАМЕТР ДЛЯ ФИЛЬТРАЦИИ, НУЖНО ПОДУМАТЬ КАК ПЕРЕДАВАТЬ ПОКА ПРОСТО СТРОКА
        AND PO.STATUS = 2
 ORDER BY 
       PO.CODE_BILL, 
@@ -37,6 +37,20 @@ FROM
 WHERE 
     CS.SPEC_ID IN (SELECT PDL.IND
                    FROM PROGRAMM_DSE_LINK PDL
-                   WHERE PDL.PROGRAMM_SUBORDER_ID = 244803) -- ПАРАМЕТРЫ ФИЛЬТРАЦИИ (ПЕРЕЛАЕТСЯ ИНДЕКС ПЛАТЕЖНОГО УЗЛА)
+                   WHERE PDL.PROGRAMM_SUBORDER_ID = 244803) -- ПАРАМЕТРЫ ФИЛЬТРАЦИИ (ПЕРЕДАЕТСЯ ИНДЕКС ПЛАТЕЖНОГО УЗЛА)
 
 Выбор спецификации:
+SELECT PDL.IND, -- СОХРАНЕНИЕ В ПОЛЕ SPEC_ID
+       PD.DSE, -- СОХРАНЕНИЕ В ПОЛЕ DSE_ID
+       (SELECT DM.DM_NAME || ' ' || DM.DM_DRAFT
+          FROM DSE_MAIN DM
+         WHERE DM.DM_INDEX = PD.DSE) AS DSE_NAME, -- НАИМЕНОВАНИЕ, ОБОЗНАЧЕНИЕ
+       (SELECT PDT.NAME FROM PROGRAMM_DSE_TYPES PDT WHERE PDT.IND = PD.TYPE_) AS TYPE_SPEC, -- ТИП
+       PDL.NUM, -- КОЛ-ВО
+       (SELECT COUNT(CS.CUBE_SPECIFICATION_ID)
+          FROM CUBE_SPECIFICATION CS
+         WHERE CS.SPEC_ID = PDL.IND) AS SH -- СХЕМ    
+FROM PROGRAMM_DSE_LINK PDL, 
+     PROGRAMM_DSE PD
+WHERE PDL.PROGRAMM_DSE_ID = PD.IND AND
+      PDL.PROGRAMM_SUBORDER_ID  = 122483 -- ПАРАМЕТРЫ ФИЛЬТРАЦИИ (ПЕРЕДАЕТСЯ ИНДЕКС ПЛАТЕЖНОГО УЗЛА)
