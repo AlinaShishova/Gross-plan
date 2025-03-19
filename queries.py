@@ -16,16 +16,24 @@ queries = {
             d.dm_class_id, 
             d.dm_draft, 
             d.dm_name""",
-    "order":"""SELECT CM.CUBE_ID, --ИД используется для перехода на следующую страницу (срыт)
-                CM.STATUS, -- статус, должен быть img но пока не придумал как реализовать
-                PO.CODE_BILL || '/' || PO.SUBCODE_BILL AS ORDER_NUM,
-                PO.SHORT_NAME, -- Название ШПЗ
-                (SELECT PS.ORDER_NAME || ' ' || PS.ORDER_DRAFT
-        FROM PROGRAMM_SUBORDER PS
-        WHERE PS.PROGRAMM_ORDER = PO.IND) AS PU_NAME -- Название платежного узла
-        FROM CUBE_MAIN CM, PROGRAMM_ORDER PO
-        WHERE CM.ORDER_ID = PO.IND
-        AND CM.STATUS IN (0, 1)""",
+    "scheme":"""SELECT PS.IND, -- ИНДЕКС ПЛАТЕЖНОГО УЗЛА ПО НЕМУ ПЕРЕХОД НА СЛЕДУЮЩУЮ СТРАНИЧКУ
+                    PO.CODE_BILL || '/' || PO.SUBCODE_BILL AS ORDER_NUM, --ЩПЗ
+                    PO.CONTRACT_NUM, -- № КОНТРАКТА
+                    PO.CUSTOMER_NAME, -- ЗАКАЗЧИК
+                    PS.ORDER_NAME || ' ' || PS.ORDER_DRAFT AS NAME_DRAFT_NUM, -- НАИМЕНОВАНИЕ, ОБОЗНАЧЕНИЕ
+                    PS.NUM, -- КОЛ-ВО
+                    (SELECT COUNT(PDL.IND)|| '/0' FROM PROGRAMM_DSE_LINK PDL WHERE PDL.PROGRAMM_SUBORDER_ID = PS.IND) AS SP_COUNT -- СП
+                FROM
+                    PROGRAMM_ORDER PO,
+                    PROGRAMM_SUBORDER PS
+                WHERE 
+                    PS.PROGRAMM_ORDER = PO.IND AND 
+                    UPPER(PO.CODE_BILL || '/' || PO.SUBCODE_BILL) LIKE:filter_value  -- ПАРАМЕТР ДЛЯ ФИЛЬТРАЦИ
+                    AND PO.STATUS = 2
+                ORDER BY 
+                    PO.CODE_BILL, 
+                    PO.SUBCODE_BILL,
+                    PO.SHORT_NAME""",
     "spec":"""
             SELECT 
                 CS.CUBE_SPECIFICATION_ID,

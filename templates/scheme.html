@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block sub_content %}
+
+<div class="container my-4">
+    <div class="text-center">
+        <h1 class="h3 mb-5 fw-normal">Выбор ПУ</h1>
+    </div>
+    
+    <form method="POST" class="d-flex justify-content-center gap-3 mb-4">
+        <label for="filter" class="form-label me-4">Фильтр</label>
+        <input type="text" class="form-control me-4" id="filter_value", name = "filter_value", style="width: 500px">
+        <button type="submit" class="btn btn-outline-dark">Обновить</button>
+ 
+    </form>
+<!-- 
+    <div class="d-flex justify-content-center align-items-center">
+        <label for="filter" class="form-label me-4">Фильтр</label>
+        <input type="text" class="form-control me-4" id="filter" style="width: 500px">
+        <button class="btn btn-outline-dark" type="button">Обновить</button>
+    </div> -->
+
+    <div class="row mt-5"> 
+    </div>
+    
+    {% if results %}
+    <div class="table-responsive" style="max-width: 100%; margin: 0 auto;">
+            
+        <table class="table">
+            <thead class="table-light">
+            <tr>
+                <th scope="col">ШПЗ</th>
+                <th scope="col">№ контракта</th>
+                <th scope="col">Заказчик</th>
+                <th scope="col">Наименование, обозначение</th>
+                <th scope="col">Количество</th>
+                <th scope="col"> СП </th>
+            </tr>
+            </thead>
+            <tbody class="table-group-divider">
+                {% for row in results %}
+            <tr>
+                <th>{{ row[1] }}</th>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td>
+                <td>{{ row[5] }}</td>
+                <td>{{ row[6] }}</td>
+              
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-center">Нет данных для отображения</p>
+    {% endif %}
+</div>
+{% endblock %}
