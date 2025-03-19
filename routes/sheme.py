@@ -6,12 +6,7 @@ scheme_bp = Blueprint("scheme", __name__)
 
 @scheme_bp.route('/scheme/',methods=['GET', 'POST'])
 @login_required
-<<<<<<< HEAD
 def scheme():
-
-=======
-def order():
->>>>>>> 5a0e587506c85ca7d525e32cd5eea5209879e27f
     results = []
     if request.method == 'POST':
         filter_value = request.form.get('filter_value', "").strip()
