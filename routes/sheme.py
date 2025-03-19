@@ -7,7 +7,7 @@ scheme_bp = Blueprint("scheme", __name__)
 @scheme_bp.route('/scheme/',methods=['GET', 'POST'])
 @login_required
 def order():
-
+    results = []
     if request.method == 'POST':
         filter_value = request.form.get('filter_value', "").strip()
         if not filter_value:
