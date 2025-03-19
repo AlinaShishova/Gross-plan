@@ -35,30 +35,31 @@ queries = {
                     PO.SUBCODE_BILL,
                     PO.SHORT_NAME""",
     "spec":"""
-            SELECT 
-                CS.CUBE_SPECIFICATION_ID,
-                CS.CUBE_ID,
-                CS.STOP,
-                CS.DSE_ID,
-                (SELECT 
-                    DM.DM_NAME || ' ' || DM.DM_DRAFT
-                FROM 
-                    DSE_MAIN DM
-                WHERE 
-                    DM.DM_INDEX = CS.DSE_ID) AS DSE_NAME,
-                (SELECT 
-                    (SELECT PDT.NAME FROM PROGRAMM_DSE_TYPES PDT WHERE PDT.IND = PD.TYPE_)
-                FROM 
-                    PROGRAMM_DSE PD
-                WHERE PD.IND = CS.SPEC_ID) AS TYPE_SPEC,
-                CS.NUM,
-                CS.DATE_GENERAL,
-                (SELECT PD.TITLE FROM PROGRAMM_DSE PD WHERE PD.IND = CS.SPEC_ID) AS TITLE
-
-            FROM 
-                CUBE_SPECIFICATION CS
-            WHERE 
-                CS.CUBE_ID = 1 -- Тут параметр от формы!!!
+        SELECT CS.CUBE_SPECIFICATION_ID, -- ИНДЕКС СПЕЦИФИКАЦИИ (СКРЫТ)
+                CS.STOP, -- ЗНАЧЕК В РАБОТЕ = 1 /ОСТАНОВЛЕН = 0
+                CS.DSE_ID, -- ИНДЕКС ДСЕ ДЛЯ ПЕРЕХОДА К СОСТАВУ ИЗДЕЛИЯ (СКРЫТ)
+                (SELECT DM.DM_NAME || ' ' || DM.DM_DRAFT
+        FROM DSE_MAIN DM
+        WHERE DM.DM_INDEX = CS.DSE_ID) AS DSE_NAME, -- НАИМЕНОВАНИЕ, ОБОЗНАЧЕНИЕ
+        (SELECT (SELECT PDT.NAME FROM PROGRAMM_DSE_TYPES PDT WHERE PDT.IND = PD.TYPE_)
+                FROM PROGRAMM_DSE PD
+                WHERE PD.IND = CS.SPEC_ID) AS TYPE_SPEC, -- ТИП
+                CS.NUM, -- КОЛ-ВО
+                CS.DATE_GENERAL, -- НАЧАЛО
+                (SELECT PD.TITLE FROM PROGRAMM_DSE PD WHERE PD.IND = CS.SPEC_ID) AS TITLE, -- ПРИМЕЧАНИЕ
+                CS.SPEC_ID -- ИНДЕКС СПЕЦИФИКАЦИИ (СКРЫТ, НА ВСЯКИЙ СЛУЧАЙ)
+        FROM 
+            CUBE_SPECIFICATION CS
+        WHERE 
+            CS.SPEC_ID IN (SELECT PDL.IND
+                        FROM PROGRAMM_DSE_LINK PDL
+                        WHERE PDL.PROGRAMM_SUBORDER_ID = :ps_ind) -- ПАРАМЕТРЫ ФИЛЬТРАЦИИ (ПЕРЕДАЕТСЯ ИНДЕКС ПЛАТЕЖНОГО УЗЛА)
+    
+    """,
+    "update_status":"""
+        UPDATE CUBE_SPECIFICATION 
+        SET STOP = :stop 
+        WHERE CUBE_SPECIFICATION_ID = :cube_specification_id
     
     """,
 }

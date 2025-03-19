@@ -1,10 +1,36 @@
 {% extends 'base.html' %}
 {% block sub_content %}
-<style>
-    .btn-fixied{
-        width: 150px;
+
+
+<script>
+    function toggleButton(rowId) {
+        let button = document.getElementById(`toggleBtn-${rowId}`);
+        let icon = document.getElementById(`toggleIcon-${rowId}`);
+        let newStatus = button.classList.contains("btn-danger") ? 1 : 0;
+    
+        // Переключаем стили
+        button.classList.toggle("btn-danger");
+        button.classList.toggle("btn-success");
+        icon.classList.toggle("fa-x");
+        icon.classList.toggle("fa-check");
+    
+        // Отправляем запрос на сервер
+        updateStatus(rowId, newStatus);
     }
-</style>
+    
+    function updateStatus(rowId, newStatus) {
+        console.log(`Отправка данных: ${rowId}, ${newStatus}`);  // Выводим данные для проверки
+        fetch("/update_status", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ cube_specification_id: rowId, stop: newStatus })
+        }).then(response => response.json())
+          .then(data => console.log(data))
+          .catch(error => console.error("Ошибка:", error));
+    }
+</script>
 
 <div class="container my-4">
     <div class="text-center">
@@ -12,10 +38,8 @@
     </div>
     
     <div class="d-flex justify-content-center gap-5 flex-wrap mt-5">
-        <button class="btn btn-outline-dark btn-fixied" type="button">Добавить</button>
-        <button class="btn btn-outline-dark btn-fixied" type="button">Редактировать</button>
-        <button class="btn btn-outline-dark btn-fixied" type="button">Удалить</button>
-        <button class="btn btn-outline-dark btn-fixied" type="button">Стоп</button>
+        <button class="btn btn-outline-dark" type="button">Добавить</button>
+        <button class="btn btn-outline-dark" type="button">Обновить</button>
    
       </div>
 
@@ -24,34 +48,39 @@
     </div>
     
     
-    <div class="table-responsive" style="max-width: 90%; margin: 0 auto;">
+    <div class="table-responsive" style="max-width: 100%; margin: 0 auto;">
             
         <table class="table">
             <thead class="table-light">
                 <tr>
-                    <th>Стоп</th>
+                    <th>Статус</th>
                     <th>Наименование (Обозначение)</th>
                     <th>Тип</th>
                     <th>Количество</th>
                     <th>Начало</th>
                     <th>Примечание</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 {% for row in results %}
                 <tr>
                     <td>
-                        {% if row[2]==1  %}
-                            <img src = "/static/images/stop_active.png" alt = "Активный" width="30">
-                        {% else %}
-                            <img src = "/static/images/stop_inactive.png" alt = "Неактивный" width="30">
-                        {% endif %}
+                        <button id="toggleBtn-{{ row[0] }}" class="btn {% if row[1] == 1 %}btn-success{% else %}btn-danger{% endif %}" 
+                        onclick="toggleButton({{ row[0] }})">
+                            <i id="toggleIcon-{{ row[0] }}" class="fa-solid {% if row[1] == 1 %}fa-check{% else %}fa-x{% endif %}"></i>
+                        </button>
                     </td> <!-- CS.STOP -->
-                    <td>{{ row[4] }}</td> <!-- DSE_NAME -->
-                    <td>{{ row[5] }}</td> <!-- TYPE_SPEC -->
-                    <td>{{ row[6] }}</td> <!-- NUM -->
-                    <td>{{ row[7].strftime("%d-%m-%Y") }}</td> <!-- DATE_GENERAL -->
-                    <td>{{ row[8] }}</td> <!-- TITLE -->
+                    <td>{{ row[3] }}</td> <!-- DSE_NAME -->
+                    <td>{{ row[4] }}</td> <!-- TYPE_SPEC -->
+                    <td>{{ row[5] }}</td> <!-- NUM -->
+                    <td>{{ row[6].strftime("%d-%m-%Y") }}</td> <!-- DATE_GENERAL -->
+                    <td>{{ row[7] }}</td> <!-- TITLE -->
+                    <td>
+                        <button class="btn btn-outline-dark">
+                            <i class="fa-solid fa-minus"></i>
+                        </button>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

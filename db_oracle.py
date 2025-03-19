@@ -31,13 +31,20 @@ def execute_query(query_name, params=None):
         if not sql_query:
             raise ValueError(f"Запрос с ключом '{query_name}' не найден в queries.")
 
+        
         # Выполнение SQL-запроса с параметрами
         cursor.execute(sql_query, params or {})
-        results = cursor.fetchall()
+        # Если запрос начинается с "SELECT", извлекаем данные
+        if sql_query.strip().upper().startswith("SELECT"):
+            results = cursor.fetchall()
+        else:
+            # Для DML-запросов (UPDATE, INSERT, DELETE) фиксируем изменения и не пытаемся извлечь данные
+            connection.commit()
 
-    except Exception as e:
+
+    except oracledb.DatabaseError as e:
         print(f"Ошибка при выполнении запроса {query_name}: {e}")
-
+        raise
     finally:
         # Закрываем соединение с БД
         if cursor:

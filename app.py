@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
 from flask_bootstrap import Bootstrap5
 from config import Config
 import db_oracle
@@ -34,8 +34,18 @@ def cubs():
 @app.route('/spec/')
 @login_required
 def spec():
-    results = db_oracle.execute_query("spec")
+    ps_ind = request.args.get('ps_ind')  # Получаем переданный параметр из URL
+    results = db_oracle.execute_query("spec", {"ps_ind":ps_ind})
     return render_template('spec.html', results=results)
+
+
+@app.route('/update_status', methods=['POST'])
+def update_status():
+    data = request.json
+    row_id = data["cube_specification_id"]
+    new_status = data["stop"]
+    db_oracle.execute_query("update_status", {"stop": new_status, "cube_specification_id": row_id})
+    return jsonify({"success": True, "cube_specification_id": row_id, "new_status": new_status})
 
 
 if __name__ == '__main__':
