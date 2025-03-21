@@ -34,12 +34,12 @@
             <tbody class="table-group-divider">
                 {% for row in results %}
             <tr>
-                <th>
-                    <a href="{{ url_for('spec', ps_ind=row[0]) }}" class = "text-dark">{{ row[1] }}</a>
-                </th>
+                <td>{{ row[1] }}</td>
                 <td>{{ row[2] }}</td>
                 <td>{{ row[3] }}</td>
-                <td>{{ row[4] }}</td>
+                <th>
+                    <a href="{{ url_for('spec', ps_ind=row[0]) }}" class = "text-dark">{{ row[4] }}</a>
+                </th>
                 <td>{{ row[5] }}</td>
                 <td>{{ row[6] }}</td>
               
