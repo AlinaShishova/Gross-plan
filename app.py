@@ -36,17 +36,33 @@ def cubs():
 def spec():
     ps_ind = request.args.get('ps_ind')  # Получаем переданный параметр из URL
     results = db_oracle.execute_query("spec", {"ps_ind":ps_ind})
-    return render_template('spec.html', results=results)
+    return render_template('spec.html', results=results, ps_ind=ps_ind) # КС Добавил параметр
+
+@app.route('/spec_select/')  # КС добавил route
+@login_required
+def spec_select():
+    pay_unit_id = request.args.get('pay_unit_id')  # Получаем параметр из URL
+    if not pay_unit_id:
+        return "Параметр pay_unit_id отсутствует", 400  # Обработка ошибки
+
+    results = db_oracle.execute_query("spec_select", {"pay_unit_id": pay_unit_id})
+    return render_template('spec_select.html', results=results)
+##-----------------------------------------
+
+# @app.route('/insert_spec', methods=['POST'])
+# def insert_spec():
+#     # Получаем данные из запроса
+#     data = request.json
+
+#     # Проверяем, что все необходимые поля присутствуют
+#     required_fields = ["dse_id", "date_general", "spec_id", "num"]
+#     if not all(field in data for field in required_fields):
+#         return jsonify({"status": "error", "message": "Недостаточно данных"}), 400
+#     db_oracle.execute_query('insert_spec',required_fields)
+       
 
 
-@app.route('/update_status', methods=['POST'])
-def update_status():
-    data = request.json
-    row_id = data["cube_specification_id"]
-    new_status = data["stop"]
-    db_oracle.execute_query("update_status", {"stop": new_status, "cube_specification_id": row_id})
-    return jsonify({"success": True, "cube_specification_id": row_id, "new_status": new_status})
-
+# ##-----------------------------------------
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

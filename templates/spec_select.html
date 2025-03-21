@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% block sub_content %}
+
+<div class="container my-4">
+    <div class="text-center">
+        <h1 class="h3 mb-5 fw-normal">Добавление спецификации</h1>
+    </div>
+    <div class="row mt-5"> 
+    </div>
+    
+    {% if results %}
+    <div class="table-responsive" style="max-width: 100%; margin: 0 auto;">
+        <table class="table">
+            <thead class="table-light">
+            <tr>
+                <th scope="col">Наименование, обозначение</th>
+                <th scope="col">Тип</th>
+                <th scope="col">Кол-во</th>
+                <th scope="col">Схемы</th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody class="table-group-divider">
+                {% for row in results %}
+            <tr>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td>
+                <td>{{ row[5] }}</td>
+                <td>
+                    <!-- Кнопка для открытия модального окна -->
+                    <button class="btn btn-outline-dark" 
+                            type="button" data-bs-toggle="modal" 
+                            data-bs-target="#addSpecForm"
+                            data-row-id="{{ row[0] }}" 
+                            data-dse-id="{{ row[1] }}" 
+                            onclick="setRowId(this)">
+                            +
+                    </button>
+                <td>             
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+    <p class="text-center">Нет данных для отображения</p>
+    {% endif %}
+</div>
+
+<!-- Модальное окно -->
+<div class="modal fade" id="addSpecForm" tabindex="-1" aria-labelledby="addSpecFormLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addSpecFormLabel"> Введите данные: </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Форма для ввода данных -->
+                <form id="dataForm">
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Дата запуска</label>
+                        <input type="date" class="form-control" id="date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Количество</label>
+                        <input type="number" class="form-control" id="quantity" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveData()">Сохранить</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отменить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentRowId = null;
+    let dseId = null;
+
+    // Функция для установки текущего rowId
+    function setRowId(button) {
+        currentRowId = button.getAttribute('data-row-id'); // Получаем row[0]
+        dseId = button.getAttribute('data-dse-id'); // Получаем row[1]
+    
+        console.log("ID строки:", currentRowId);
+        console.log("ДСЕ id:", dseId);
+    }
+
+    // Функция для сохранения данных
+    function saveData() {
+        // Получаем элементы формы
+        const quantityInput = document.getElementById('quantity');
+        const dateInput = document.getElementById('date');
+    
+        // Проверяем, что элементы существуют
+        if (!quantityInput || !dateInput) {
+            console.error("Элементы формы не найдены!");
+            return;
+        }
+    
+        // Получаем и очищаем значения
+        const quantity = quantityInput.value.trim();
+        const date = dateInput.value.trim();
+    
+        // Проверяем, что поля заполнены
+        if (!quantity || !date) {
+            alert("Заполните поля");
+            return;
+        }
+    
+        // Проверяем, что выбрана строка
+        if (!currentRowId || !dseId) {
+            alert("Не выбрана строка!");
+            return;
+        }
+    
+        // Подготавливаем данные для отправки
+        const data = {
+            cube_specification_id: null, // Будет заполнено на стороне сервера через последовательность
+            dse_id: dseId, // ДСЕ
+            date_general: date, // Дата из модальной формы
+            stop: 0, // по умолчанию
+            spec_id: currentRowId, // currentRowId из модальной формы
+            num: quantity, // Количество из модальной формы
+            worshop_id: null // worshop_id остается пустым
+        };
+    
+        // Выводим данные для проверки
+        console.log("Отправка данных:", data);
+    
+        // Отправляем данные на сервер
+        fetch("/insert_spec", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Ответ от сервера:", data);
+            // Закрыть модальное окно
+            const modalElement = document.getElementById('addSpecForm');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+                modal.hide();
+            }
+            // Очистить форму
+            document.getElementById('dataForm').reset();
+            // Сбросить переменные
+            currentRowId = null;
+            dseId = null;
+        })
+        .catch(error => {
+            console.error("Ошибка:", error);
+            alert("Произошла ошибка при отправке данных.");
+        });
+    }
+</script>
+
+{% endblock %}

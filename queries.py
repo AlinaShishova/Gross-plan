@@ -62,4 +62,43 @@ queries = {
         WHERE CUBE_SPECIFICATION_ID = :cube_specification_id
     
     """,
+     
+    "spec_select": """
+    SELECT PDL.IND, -- СОХРАНЕНИЕ В ПОЛЕ SPEC_ID
+       PD.DSE, -- СОХРАНЕНИЕ В ПОЛЕ DSE_ID
+       (SELECT DM.DM_NAME || ' ' || DM.DM_DRAFT
+          FROM DSE_MAIN DM
+         WHERE DM.DM_INDEX = PD.DSE) AS DSE_NAME, -- НАИМЕНОВАНИЕ, ОБОЗНАЧЕНИЕ
+       (SELECT PDT.NAME FROM PROGRAMM_DSE_TYPES PDT WHERE PDT.IND = PD.TYPE_) AS TYPE_SPEC, -- ТИП
+       PDL.NUM, -- КОЛ-ВО
+       (SELECT COUNT(CS.CUBE_SPECIFICATION_ID)
+          FROM CUBE_SPECIFICATION CS
+         WHERE CS.SPEC_ID = PDL.IND) AS SH -- СХЕМ    
+FROM PROGRAMM_DSE_LINK PDL, 
+     PROGRAMM_DSE PD
+WHERE PDL.PROGRAMM_DSE_ID = PD.IND AND
+      PDL.PROGRAMM_SUBORDER_ID  = :pay_unit_id -- ПАРАМЕТРЫ ФИЛЬТРАЦИИ (ПЕРЕДАЕТСЯ ИНДЕКС ПЛАТЕЖНОГО УЗЛА)
+    """,
+    
+    "insert_spec": """
+    INSERT INTO CUBE_SPECIFICATION (
+        cube_specification_id,
+        dse_id,
+        date_general,
+        stop,
+        spec_id,
+        num,
+        worshop_id
+    )
+    VALUES (
+        SQ_CUBE_SPECIFICATION.NEXTVAL,
+        :dse_id,
+        TO_DATE(:date_general, 'YYYY-MM-DD'),
+        0,
+        :spec_id,
+        :num,
+        NULL
+    )
+""", 
+
 }
