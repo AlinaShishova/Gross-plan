@@ -149,12 +149,26 @@
             const modal = bootstrap.Modal.getInstance(modalElement);
             if (modal) {
                 modal.hide();
+        
             }
+        
+            // Удалить затемняющий фон (если он не исчезает автоматически)
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) {
+            backdrop.remove();
+        }
             // Очистить форму
             document.getElementById('dataForm').reset();
             // Сбросить переменные
             currentRowId = null;
             dseId = null;
+
+             // Убедимся, что состояние модального окна очищено, и его можно снова открыть
+        setTimeout(() => {
+            // Повторно инициализируем модальное окно, чтобы оно работало повторно
+            new bootstrap.Modal(modalElement);
+        }, 100);
+
         })
         .catch(error => {
             console.error("Ошибка:", error);

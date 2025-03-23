@@ -28,7 +28,7 @@
      
             <tr>
                 <td>
-                    <button id="toggleBtn" class="btn btn-success" 
+                    <button id="toggleBtn" class="btn btn-sm btn-success" 
                     onclick="">
                         <i id="toggleIcon" class="fa-solid fa-check"></i>
                     </button>
@@ -41,16 +41,16 @@
                 <td></td>
                 <td></td>
                 <td>
-                    <button class="btn btn-outline-dark" 
+                    <button class="btn btn-sm btn-outline-dark" 
                             type="button" data-bs-toggle="modal" 
                             data-bs-target="#infoDateForm"
                             onclick="setRowId(this)">
-                            +
+                            <i id="toggleIcon" class="fa-solid fa-plus"></i>
                     </button >
                 </td>
                 <td>
-                    <button class="btn btn-outline-dark">
-                        – 
+                    <button class="btn btn-sm btn-outline-dark">
+                        <i id="toggleIcon" class="fa-solid fa-minus"></i> 
                     </button>   
                 </td>       
             </tr>
@@ -83,7 +83,7 @@
                 {% for row in results %}
             <tr>
                 <td>
-                    <button id="toggleBtn-{{ row[0] }}" class="btn btn-success" 
+                    <button btn-sm id="toggleBtn-{{ row[0] }}" class="btn btn-success" 
                     onclick="">
                         <i id="toggleIcon-{{ row[0] }}" class="fa-solid fa-check"></i>
                     </button>
@@ -96,7 +96,7 @@
                 <td>{{ row[6] }}</td>
                 <td>{{ row[7] }}</td>
                 <td>
-                    <button class="btn btn-outline-dark" 
+                    <button class="btn btn-sm btn-outline-dark" 
                             type="button" data-bs-toggle="modal" 
                             data-bs-target="#infoDateForm"
                             data-row-id="{{ row[0] }}" 
@@ -106,7 +106,7 @@
                     </button>
                 <td>  
                 <td>
-                    <button class="btn btn-outline-dark">
+                    <button btn-sm class="btn btn-outline-dark">
                         – 
                     </button>   
                 </td>                 

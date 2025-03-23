@@ -72,7 +72,7 @@
                 {% for row in results %}
                 <tr>
                     <td>
-                        <button id="toggleBtn-{{ row[0] }}" class="btn {% if row[1] == 1 %}btn-success{% else %}btn-danger{% endif %}" 
+                        <button id="toggleBtn-{{ row[0] }}" class="btn btn-sm {% if row[1] == 1 %}btn-success{% else %}btn-danger{% endif %}" 
                         onclick="toggleButton({{ row[0] }})">
                             <i id="toggleIcon-{{ row[0] }}" class="fa-solid {% if row[1] == 1 %}fa-check{% else %}fa-x{% endif %}"></i>
                         </button>
@@ -85,7 +85,7 @@
                     <td>{{ row[6].strftime("%d-%m-%Y") }}</td> <!-- DATE_GENERAL -->
                     <td>{{ row[7] }}</td> <!-- TITLE -->
                     <td>
-                        <button class="btn btn-outline-dark">
+                        <button class="btn btn-sm btn-outline-dark">
                             <i class="fa-solid fa-minus"></i>
                         </button>
                     </td>
