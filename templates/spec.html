@@ -77,7 +77,9 @@
                             <i id="toggleIcon-{{ row[0] }}" class="fa-solid {% if row[1] == 1 %}fa-check{% else %}fa-x{% endif %}"></i>
                         </button>
                     </td> <!-- CS.STOP -->
-                    <td>{{ row[3] }}</td> <!-- DSE_NAME -->
+                    <td>
+                        <a href="{{ url_for('product') }}" class = "text-dark">{{ row[3] }}</a>
+                    </td> <!-- DSE_NAME -->
                     <td>{{ row[4] }}</td> <!-- TYPE_SPEC -->
                     <td>{{ row[5] }}</td> <!-- NUM -->
                     <td>{{ row[6].strftime("%d-%m-%Y") }}</td> <!-- DATE_GENERAL -->

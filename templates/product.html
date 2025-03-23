@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% block sub_content %}
+
+<div class="container my-4">
+    <div class="text-center">
+        <h1 class="h3 mb-5 fw-normal">Состав изделия</h1>
+    </div>
+    <div class="row mt-5"> 
+    </div>
+
+    <div class="table-responsive" style="max-width: 100%; margin: 0 auto;">
+        <table class="table">
+            <thead class="table-light">
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">Наименование</th>
+                <th scope="col">Обозначение по КД</th>
+                <th scope="col">Кол-во</th>
+                <th scope="col">Маршрут</th>
+                <th scope="col">Старт</th>
+                <th scope="col">Сборка</th>
+                <th scope="col">Выпуск</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody class="table-group-divider">
+     
+            <tr>
+                <td>
+                    <button id="toggleBtn" class="btn btn-success" 
+                    onclick="">
+                        <i id="toggleIcon" class="fa-solid fa-check"></i>
+                    </button>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>
+                    <button class="btn btn-outline-dark" 
+                            type="button" data-bs-toggle="modal" 
+                            data-bs-target="#infoDateForm"
+                            onclick="setRowId(this)">
+                            +
+                    </button >
+                </td>
+                <td>
+                    <button class="btn btn-outline-dark">
+                        – 
+                    </button>   
+                </td>       
+            </tr>
+    
+            </tbody>
+        </table>
+    </div>
+
+
+
+    <!--     
+    {% if results %}
+    <div class="table-responsive" style="max-width: 100%; margin: 0 auto;">
+        <table class="table">
+            <thead class="table-light">
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">Наименование</th>
+                <th scope="col">Обозначение по КД</th>
+                <th scope="col">Кол-во</th>
+                <th scope="col">Маршрут</th>
+                <th scope="col">Старт</th>
+                <th scope="col">Сборка</th>
+                <th scope="col">Выпуск</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody class="table-group-divider">
+                {% for row in results %}
+            <tr>
+                <td>
+                    <button id="toggleBtn-{{ row[0] }}" class="btn btn-success" 
+                    onclick="">
+                        <i id="toggleIcon-{{ row[0] }}" class="fa-solid fa-check"></i>
+                    </button>
+                </td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td>
+                <td>{{ row[5] }}</td>
+                <td>{{ row[6] }}</td>
+                <td>{{ row[7] }}</td>
+                <td>
+                    <button class="btn btn-outline-dark" 
+                            type="button" data-bs-toggle="modal" 
+                            data-bs-target="#infoDateForm"
+                            data-row-id="{{ row[0] }}" 
+                            data-dse-id="{{ row[1] }}" 
+                            onclick="setRowId(this)">
+                            +
+                    </button>
+                <td>  
+                <td>
+                    <button class="btn btn-outline-dark">
+                        – 
+                    </button>   
+                </td>                 
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+    <p class="text-center">Нет данных для отображения</p>
+    {% endif %}-->
+</div>
+
+<!-- Модальное окно -->
+<div class="modal fade" id="infoDateForm" tabindex="-1" aria-labelledby="infoDateFormLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="infoDateFormLabel"> Введите данные: </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Форма для ввода данных -->
+                <form id="dataForm">
+                    <div class="mb-3">
+                        <label for="buildDat" class="form-label">Дата старта</label>
+                        <input type="date" class="form-control" id="buildDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="startDate" class="form-label">Дата сборки</label>
+                        <input type="date" class="form-control" id="startDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="releaseDate" class="form-label">Дата выпуска</label>
+                        <input type="date" class="form-control" id="releaseDate" required>
+                    </div>
+                    
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveData()">Сохранить</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отменить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentRowId = null;
+    let dseId = null;
+
+    // Функция для установки текущего rowId
+    function setRowId(button) {
+        currentRowId = button.getAttribute('data-row-id'); // Получаем row[0]
+        dseId = button.getAttribute('data-dse-id'); // Получаем row[1]
+    
+        console.log("ID строки:", currentRowId);
+        console.log("ДСЕ id:", dseId);
+    }
+
+    // Функция для сохранения данных
+    function saveData() {
+        // Получаем элементы формы
+        const startDateInput = document.getElementById('startDate');
+        const buildDateInput = document.getElementById('buildDate');
+        const releaseDateInput = document.getElementById('releaseDate');
+    
+        // Проверяем, что элементы существуют
+        if (!startDateInput || !buildDateInput || !releaseDateInput) {
+            console.error("Элементы формы не найдены!");
+            return;
+        }
+    
+        // Получаем и очищаем значения
+        const startDate = startDateInput.value.trim();
+        const buildDate = buildDateInput.value.trim();
+        const releaseDate = releaseDateInput.value.trim();
+    
+        // Проверяем, что поля заполнены
+        if (!startDate || !buildDate || !releaseDate) {
+            alert("Заполните поля");
+            return;
+        }
+    
+        // Проверяем, что выбрана строка
+        if (!currentRowId || !dseId) {
+            alert("Не выбрана строка!");
+            return;
+        }
+    
+        // Подготавливаем данные для отправки
+        const data = {
+           
+        };
+    
+        // Выводим данные для проверки
+        console.log("Отправка данных:", data);
+    
+        // Отправляем данные на сервер
+        fetch("/insert_spec", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Ответ от сервера:", data);
+            // Закрыть модальное окно
+            const modalElement = document.getElementById('infoDateForm');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+                modal.hide();
+            }
+            // Очистить форму
+            document.getElementById('dataForm').reset();
+            // Сбросить переменные
+            currentRowId = null;
+            dseId = null;
+        })
+        .catch(error => {
+            console.error("Ошибка:", error);
+            alert("Произошла ошибка при отправке данных.");
+        });
+    }
+</script>
+
+{% endblock %}

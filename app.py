@@ -64,5 +64,11 @@ def spec_select():
 
 # ##-----------------------------------------
 
+
+@app.route('/product/')
+@login_required
+def product():
+    return render_template('product.html')
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
