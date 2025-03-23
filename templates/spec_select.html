@@ -121,13 +121,13 @@
     
         // Подготавливаем данные для отправки
         const data = {
-            cube_specification_id: null, // Будет заполнено на стороне сервера через последовательность
-            dse_id: dseId, // ДСЕ
-            date_general: date, // Дата из модальной формы
-            stop: 0, // по умолчанию
-            spec_id: currentRowId, // currentRowId из модальной формы
-            num: quantity, // Количество из модальной формы
-            worshop_id: null // worshop_id остается пустым
+            // "cube_specification_id": null, // Будет заполнено на стороне сервера через последовательность
+            "dse_id": parseInt(dseId), // ДСЕ
+            "date_general": date, // Дата из модальной формы
+            "stop": 0, // по умолчанию
+            "spec_id": parseInt(currentRowId), // currentRowId из модальной формы
+            "num": parseInt(quantity), // Количество из модальной формы
+            // "worshop_id": null // worshop_id остается пустым
         };
     
         // Выводим данные для проверки

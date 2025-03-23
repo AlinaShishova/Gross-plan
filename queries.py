@@ -82,22 +82,18 @@ WHERE PDL.PROGRAMM_DSE_ID = PD.IND AND
     
     "insert_spec": """
     INSERT INTO CUBE_SPECIFICATION (
-        cube_specification_id,
-        dse_id,
-        date_general,
-        stop,
-        spec_id,
-        num,
-        worshop_id
+        DSE_ID,
+        DATE_GENERAL,
+        "STOP",
+        SPEC_ID,
+        NUM
     )
     VALUES (
-        SQ_CUBE_SPECIFICATION.NEXTVAL,
         :dse_id,
         TO_DATE(:date_general, 'YYYY-MM-DD'),
-        0,
+        :stop,
         :spec_id,
-        :num,
-        NULL
+        :num
     )
 """, 
 

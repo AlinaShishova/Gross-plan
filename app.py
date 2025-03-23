@@ -49,16 +49,19 @@ def spec_select():
     return render_template('spec_select.html', results=results)
 ##-----------------------------------------
 
-# @app.route('/insert_spec', methods=['POST'])
-# def insert_spec():
-#     # Получаем данные из запроса
-#     data = request.json
+@app.route('/insert_spec', methods=['POST'])
+def insert_spec():
+    # Получаем данные из запроса
+    data = request.json
 
-#     # Проверяем, что все необходимые поля присутствуют
-#     required_fields = ["dse_id", "date_general", "spec_id", "num"]
-#     if not all(field in data for field in required_fields):
-#         return jsonify({"status": "error", "message": "Недостаточно данных"}), 400
-#     db_oracle.execute_query('insert_spec',required_fields)
+    # Проверяем, что все необходимые поля присутствуют
+    required_fields = ["dse_id", "date_general", "spec_id", "num"]
+    print("Полученные данные:", data)  # Временный лог
+    if not all(field in data for field in required_fields):
+        return jsonify({"status": "error", "message": "Недостаточно данных"}), 400
+    db_oracle.execute_query('insert_spec',data)
+    # Если все ок, возвращаем JSON-ответ
+    return jsonify({"status": "success", "message": "Данные успешно добавлены"}), 200
        
 
 
