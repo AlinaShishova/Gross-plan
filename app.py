@@ -64,6 +64,16 @@ def spec_select():
 
 # ##-----------------------------------------
 
+@app.route('/update_status', methods=['POST'])
+def update_status():
+    data = request.json
+    row_id = data["cube_specification_id"]
+    new_status = data["stop"]
+    db_oracle.execute_query("update_status", {"stop": new_status, "cube_specification_id": row_id})
+    return jsonify({"success": True, "cube_specification_id": row_id, "new_status": new_status})
+
+
+
 
 @app.route('/product/')
 @login_required
