@@ -97,14 +97,14 @@ WHERE PDL.PROGRAMM_DSE_ID = PD.IND AND
     )
 """, 
     
-"level_products": """ select d.dm_index, 
+"level_products": """ select d.dm_index,
        CASE
          WHEN cc.cube_component_id IS NOT NULL THEN
           1
          ELSE
           0
        END AS Check_value,
-       (SELECT c.short_name FROM dse_classes c WHERE c.ind = d.dm_class_id) as class_name,
+       dc.short_name as class_name,
        d.dm_name as dse_name,
        d.dm_draft as dse_draft_number,
        a.da_num as count_in_assembling,
@@ -114,11 +114,15 @@ WHERE PDL.PROGRAMM_DSE_ID = PD.IND AND
        cc.date_end,
        a.da_index,
        pa.parent_da_path || '.' || a.da_index as da_path,
-       ex.num as excluded_num
+       ex.num as excluded_num,
+       sp.cube_specification_id,
+       :in_parent_branch_num * a.da_num as branch_num,
+       (:in_parent_branch_num * a.da_num) - coalesce(ex.num, 0) as computed_num,
+       dc.seq as class_seq
   from (select sp.cube_specification_id,
                l.programm_dse_id as prog_dse_id
           from cube_specification sp  
-          left join programm_dse_link l
+          left join programm_dse_link l  
             on l.ind = sp.spec_id
          where sp.cube_specification_id = :in_cube_spec_id) sp
  cross join (select pa.dm_index_what as parent_dse_id,
@@ -135,6 +139,8 @@ WHERE PDL.PROGRAMM_DSE_ID = PD.IND AND
     on a.dm_index_where = pa.parent_dse_id
   join dse_main d
     on d.dm_index = a.dm_index_what
+  join dse_classes dc
+    on dc.ind = d.dm_class_id
   left join cube_components cc
     on cc.cube_specification_id = sp.cube_specification_id
    and cc.da_index = a.da_index
@@ -151,31 +157,39 @@ select d.dm_index,
          ELSE
           0
        END AS Check_value,
-       (SELECT c.short_name FROM dse_classes c WHERE c.ind = d.dm_class_id) as class_name,
+       dc.short_name as class_name,
        d.dm_name as dse_name,
        d.dm_draft as dse_draft_number,
-       1 as count_in_assembling,
+       sp.num as count_in_assembling,
        null as workshop_route,
        cc.date_start,
        cc.date_assembling, 
        cc.date_end,
        null as da_index,
        null as da_path,
-       null as excluded_num
+       null as excluded_num,
+       sp.cube_specification_id,
+       sp.num as branch_num,
+       sp.num as computed_num,
+       dc.seq as class_seq
   from (select sp.cube_specification_id,
                sp.dse_id,
+               sp.num,
                l.programm_dse_id as prog_dse_id
           from cube_specification sp  
           left join programm_dse_link l
             on l.ind = sp.spec_id
          where sp.cube_specification_id = :in_cube_spec_id) sp
   join dse_main d
-    on d.dm_index = sp.dse_id    
+    on d.dm_index = sp.dse_id   
+  join dse_classes dc
+    on dc.ind = d.dm_class_id 
   left join cube_components cc
     on cc.cube_specification_id = sp.cube_specification_id
    and cc.da_index is null 
    and cc.da_path is null
  where :in_parent_da_index = 0
-    """,
+ order by class_seq, dse_draft_number, dse_name
+ """,
 
 }

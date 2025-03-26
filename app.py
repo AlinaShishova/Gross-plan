@@ -75,38 +75,49 @@ def update_status():
     db_oracle.execute_query("update_status", {"stop": new_status, "cube_specification_id": row_id})
     return jsonify({"success": True, "cube_specification_id": row_id, "new_status": new_status})
 
-
-
-
 @app.route('/product/')
 @login_required
 def product():
     # Извлекаем параметры из URL
-    in_cube_spec_id = request.args.get('in_cube_spec_id')
+    in_cube_spec_id = request.args.get('in_cube_spec_id') 
     in_parent_da_path = request.args.get('in_parent_da_path')
     in_parent_da_index = request.args.get('in_parent_da_index')
+    in_parent_branch_num = request.args.get('in_parent_branch_num')
     
-    # Проверяем, что параметры получены
-    if not all([in_cube_spec_id, in_parent_da_path, in_parent_da_index]):
-        return "Не все параметры переданы", 400
+    # Проверяем обязательные параметры
+    if not all([in_cube_spec_id, in_parent_da_path, in_parent_da_index,in_parent_branch_num]):
+        return "Не все обязательные параметры переданы", 400
     
-    # Преобразуем в int (а нужно ли?)
+    # Обработка для in_parent_da_index
+    if in_parent_da_index == 'None':
+        in_parent_da_index = None
+    elif in_parent_da_index is not None:
+        try:
+            in_parent_da_index = int(in_parent_da_index)
+        except ValueError:
+            return "Некорректный параметр in_parent_da_index", 400
+    
+    # Преобразуем в int
     try:
         in_cube_spec_id = int(in_cube_spec_id)
-        # in_parent_da_index = int(in_parent_da_index)
+        in_parent_branch_num = int(in_parent_branch_num)
     except ValueError:
-        return "Некорректные параметры", 400
+        return "Некорректный параметр in_cube_spec_id", 400
+    
     # Проверка
     # print(f"in_cube_spec_id: {in_cube_spec_id}")
     # print(f"parent_da_path: {in_parent_da_path}")
-    # print(f"in_parent_da_index: {in_parent_da_index}")
+    # print(f"in_parent_da_index: {in_parent_da_index} (type: {type(in_parent_da_index)})")
     
-    #  Обработка запроса
-    results = db_oracle.execute_query('level_products', {"in_cube_spec_id": in_cube_spec_id, "in_parent_da_path": in_parent_da_path , "in_parent_da_index": in_parent_da_index})
+    # Обработка запроса
+    results = db_oracle.execute_query('level_products', {
+        "in_cube_spec_id": in_cube_spec_id,
+        "in_parent_da_path": in_parent_da_path,
+        "in_parent_da_index": in_parent_da_index,
+        "in_parent_branch_num":in_parent_branch_num, 
+    })
 
     return render_template('product.html', results=results)
-
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

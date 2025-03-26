@@ -78,7 +78,12 @@
                         </button>
                     </td> <!-- CS.STOP -->
                     <td> <!-- Добавил параметры -->
-                        <a href="{{ url_for('product', in_cube_spec_id = row[0], in_parent_da_path = 'None', in_parent_da_index=0) }}" class = "text-dark">{{ row[3] }}</a>
+                        <a href="{{ url_for('product', in_cube_spec_id = row[0], 
+                                            in_parent_da_path = 'None', 
+                                            in_parent_da_index = 0,
+                                            in_parent_branch_num = 0
+                                            ) 
+                                }}" class = "text-dark">{{ row[3] }}</a>
                     </td> <!-- DSE_NAME -->
                     <td>{{ row[4] }}</td> <!-- TYPE_SPEC -->
                     <td>{{ row[5] }}</td> <!-- NUM -->

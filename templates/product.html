@@ -7,67 +7,13 @@
     </div>
     <div class="row mt-5"> 
     </div>
-
-    <div class="table-responsive" style="max-width: 100%; margin: 0 auto;">
-        <table class="table">
-            <thead class="table-light">
-            <tr>
-                <th scope="col"></th>
-                <th scope="col">Наименование</th>
-                <th scope="col">Обозначение по КД</th>
-                <th scope="col">Кол-во</th>
-                <th scope="col">Маршрут</th>
-                <th scope="col">Старт</th>
-                <th scope="col">Сборка</th>
-                <th scope="col">Выпуск</th>
-                <th scope="col"></th>
-                <th scope="col"></th>
-            </tr>
-            </thead>
-            <tbody class="table-group-divider">
-     
-            <tr>
-                <td>
-                    <button id="toggleBtn" class="btn btn-sm btn-success" 
-                    onclick="">
-                        <i id="toggleIcon" class="fa-solid fa-check"></i>
-                    </button>
-                </td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td>
-                    <button class="btn btn-sm btn-outline-dark" 
-                            type="button" data-bs-toggle="modal" 
-                            data-bs-target="#infoDateForm"
-                            onclick="setRowId(this)">
-                            <i id="toggleIcon" class="fa-solid fa-plus"></i>
-                    </button >
-                </td>
-                <td>
-                    <button class="btn btn-sm btn-outline-dark">
-                        <i id="toggleIcon" class="fa-solid fa-minus"></i> 
-                    </button>   
-                </td>       
-            </tr>
-    
-            </tbody>
-        </table>
-    </div>
-
-
-
-         
     {% if results %}
     <div class="table-responsive" style="max-width: 100%; margin: 0 auto;">
         <table class="table">
             <thead class="table-light">
             <tr>
                 <th scope="col"></th>
+                <th scope="col">Тип</th>
                 <th scope="col">Наименование</th>
                 <th scope="col">Обозначение по КД</th>
                 <th scope="col">Кол-во</th>
@@ -83,14 +29,37 @@
                 {% for row in results %}
             <tr>
                 <td>
-                    <button btn-sm id="toggleBtn-{{ row[1] }}" class="btn btn-success" 
-                    onclick="">
-                        <i id="toggleIcon-{{ row[1] }}" class="fa-solid fa-check"></i>
-                    </button>
+                    <!-- Чекбокс не активный только для информации -->
+                    <div class="form-check form-check-inline">
+                        <input 
+                          class="form-check-input" 
+                          type="checkbox" 
+                          id="toggleCheck-{{ row[1] }}" 
+                          {% if row[1] == 1 %}checked{% endif %}
+                          disabled
+                          style="cursor: default; opacity: 0.8;"
+                        >
+                        <label class="form-check-label" for="toggleCheck-{{ row[1] }}"></label>
+                    </div>
                 </td>
                 <td>{{ row[2] }}</td>
                 <td>{{ row[3] }}</td>
-                
+                <td>
+                    <a href="{{ url_for('product', 
+                                        in_cube_spec_id=row[13], 
+                                        in_parent_da_path='None' if row[11] == None else row[11], 
+                                        in_parent_da_index='None' if row[10] == None else row[10],
+                                        in_parent_branch_num = row[14]
+                                        ) }}" 
+                    class="text-dark">
+                    {{ row[4] }}
+                    </a>
+                </td>
+                <td>{{ row[15]}}</td>
+                <td>{{ row[6] if row[6] is not none else '' }}</td>
+                <td>{{ row[7].strftime("%d-%m-%Y") if row[7] is not none else '' }}</td>
+                <td>{{ row[8].strftime("%d-%m-%Y") if row[8] is not none else '' }}</td>
+                <td>{{ row[9].strftime("%d-%m-%Y") if row[9] is not none else '' }}</td>
                 <td>
                     <button class="btn btn-sm btn-outline-dark" 
                             type="button" data-bs-toggle="modal" 
@@ -102,7 +71,7 @@
                     </button>
                 <td>  
                 <td>
-                    <button btn-sm class="btn btn-outline-dark">
+                    <button  class="btn btn-sm btn-outline-dark">
                        <i id="toggleIcon" class="fa-solid fa-minus"></i> 
                     </button>   
                 </td>                 
