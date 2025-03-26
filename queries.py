@@ -96,9 +96,8 @@ WHERE PDL.PROGRAMM_DSE_ID = PD.IND AND
         :num
     )
 """, 
-    "assembling":
-    """
-    select d.dm_index,
+    
+"level_products": """ select d.dm_index, 
        CASE
          WHEN cc.cube_component_id IS NOT NULL THEN
           1
@@ -131,7 +130,7 @@ WHERE PDL.PROGRAMM_DSE_ID = PD.IND AND
                     '' as parent_da_path
                from cube_specification sp
               where sp.cube_specification_id = :in_cube_spec_id
-                and (/*:in_parent_da_index = 0 or */ :in_parent_da_index is null)) pa
+                and (:in_parent_da_index is null)) pa
   join dse_assembling a
     on a.dm_index_where = pa.parent_dse_id
   join dse_main d
@@ -177,7 +176,6 @@ select d.dm_index,
    and cc.da_index is null 
    and cc.da_path is null
  where :in_parent_da_index = 0
---Для 0 уровня нужно передать 0 в da_index
-""",
+    """,
 
 }

@@ -1,0 +1,4 @@
+Параметры вызова запроса level_products
+    - Для нулевой сборки (переход из спецификаций) da_index = 0, da_path = "любая строка"
+    - Для первого уровня da_index = Null, da_path = Null
+    - Последующие уровни da_path = da_index(1).da_index(1).da_index(n) 

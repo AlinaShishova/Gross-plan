@@ -77,8 +77,8 @@
                             <i id="toggleIcon-{{ row[0] }}" class="fa-solid {% if row[1] == 1 %}fa-check{% else %}fa-x{% endif %}"></i>
                         </button>
                     </td> <!-- CS.STOP -->
-                    <td>
-                        <a href="{{ url_for('product') }}" class = "text-dark">{{ row[3] }}</a>
+                    <td> <!-- Добавил параметры -->
+                        <a href="{{ url_for('product', in_cube_spec_id = row[0], in_parent_da_path = 'None', in_parent_da_index=0) }}" class = "text-dark">{{ row[3] }}</a>
                     </td> <!-- DSE_NAME -->
                     <td>{{ row[4] }}</td> <!-- TYPE_SPEC -->
                     <td>{{ row[5] }}</td> <!-- NUM -->
