@@ -63,9 +63,15 @@
                 <td>
                     <button class="btn btn-sm btn-outline-dark" 
                             type="button" data-bs-toggle="modal" 
-                            data-bs-target="#infoDateForm"
-                            data-row-id="{{ row[0] }}" 
-                            data-dse-id="{{ row[1] }}" 
+                            data-bs-target = "#infoDateForm"
+                            data-component-id = "{{ row[17] }}"
+                            data-specification-id =  "{{ row[13] }}"
+                            data-dse-id = "{{ row[0] }}"
+                            data-date-start = "{{ row[7] }}"
+                            data-date-end = "{{ row[8] }}"
+                            data-date-assembling = "{{ row[9] }}"
+                            data-da-index = "{{ row[10] }}"
+                            data-da-path = "{{ row[11] }}"                        
                             onclick="setRowId(this)">
                             <i id="toggleIcon" class="fa-solid fa-plus"></i>
                     </button>
@@ -121,16 +127,33 @@
 </div>
 
 <script>
-    let currentRowId = null;
+    let componentId = null;
+    let specificationId = null;
     let dseId = null;
+    let daId = null;
+    let daPath = null;
 
-    // Функция для установки текущего rowId
+    // Функция получения данных записи
     function setRowId(button) {
-        currentRowId = button.getAttribute('data-row-id'); // Получаем row[0]
-        dseId = button.getAttribute('data-dse-id'); // Получаем row[1]
-    
-        console.log("ID строки:", currentRowId);
-        console.log("ДСЕ id:", dseId);
+        componentId = button.getAttribute('data-component-id'); // id компонента спецификации
+        
+        if (componentId && componentId !== "None" && componentId !== "null") {
+            // Работаем по сценарию обновления
+            dStart = button.getAttribute('data-date-start'); // дата старта
+            dStop = button.getAttribute('data-date-end'); // дата готовности
+            dAssembl = button.getAttribute('data-date-assembling'); // дата сборки
+            // Заполняем поля формы датами
+            document.getElementById('buildDate').value = formatDate(dateAssembling);
+            document.getElementById('startDate').value = formatDate(dateStart);
+            document.getElementById('releaseDate').value = formatDate(dateEnd);
+        } else {
+            // Сценарий добавления
+            specificationId = button.getAttribute('data-specification-id'); // id спецификации
+            dseId = button.getAttribute('data-dse-id'); // ДСЕ id        
+            daId = button.getAttribute('data-da-index'); // da_index
+            daPath = button.getAttribute('data-da-path'); // da_path
+        }
+        //console.log("ДСЕ id:", dseId);
     }
 
     // Функция для сохранения данных
@@ -158,46 +181,47 @@
         }
     
         // Проверяем, что выбрана строка
-        if (!currentRowId || !dseId) {
+        if (!dseId) {
             alert("Не выбрана строка!");
             return;
         }
     
-        // Подготавливаем данные для отправки
-        const data = {
-           
-        };
-    
-        // Выводим данные для проверки
-        console.log("Отправка данных:", data);
-    
-        // Отправляем данные на сервер
-        fetch("/insert_spec", {
-            method: "POST",
-            headers: {
+       
+        //------------------------------------------------
+        if (componentId && componentId !== "None" && componentId !== "null") {
+            // Обновление записи в таблице
+            const data = {
+                "cube_component_id": parseInt(componentId), // Спецификация
+                "date_start": startDate, // Дата старта
+                "date_end": releaseDate, // Дата готовности
+                "date_assembling": buildDate, // Дата сборки          
+                };
+
+        } else {
+           // Добавление записи в таблицу
+            const data = {
+                "cube_specification_id": parseInt(specificationId), // Спецификация
+                "dse_id": parseInt(dseId), // ДСЕ
+                "date_start": startDate, // Дата старта
+                "date_end": releaseDate, // Дата готовности
+                "date_assembling": buildDate, // Дата сборки
+                "da_index": parseInt(daId), // индекс сборки
+                "da_path": parseInt(daPath), // путь сборки           
+                };
+            // Отправляем данные на сервер
+            fetch("/insert_spec", {
+                method: "POST",
+                headers: {
                 "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data)
+                },
+                body: JSON.stringify(data)
         })
         .then(response => response.json())
         .then(data => {
             console.log("Ответ от сервера:", data);
-            // Закрыть модальное окно
-            const modalElement = document.getElementById('infoDateForm');
-            const modal = bootstrap.Modal.getInstance(modalElement);
-            if (modal) {
-                modal.hide();
+        
             }
-            // Очистить форму
-            document.getElementById('dataForm').reset();
-            // Сбросить переменные
-            currentRowId = null;
-            dseId = null;
-        })
-        .catch(error => {
-            console.error("Ошибка:", error);
-            alert("Произошла ошибка при отправке данных.");
-        });
+
     }
 </script>
 

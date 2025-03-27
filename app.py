@@ -119,5 +119,19 @@ def product():
 
     return render_template('product.html', results=results)
 
+@app.route('/insert_cube_component', methods=['POST']) # Сохранение позиции cube_components
+def insert_cube_component():
+    # Получаем данные из запроса
+    data = request.json
+
+    # Проверяем, что все необходимые поля присутствуют
+    required_fields = ["cube_specification_id", "dse_id", "date_start", "date_end", "date_assembling", "da_index", "da_path"]
+    print("Полученные данные:", data)  # Временный лог
+    if not all(field in data for field in required_fields):
+        return jsonify({"status": "error", "message": "Недостаточно данных"}), 400
+    db_oracle.execute_query('insert_cube_component',data)
+    # Если все ок, возвращаем JSON-ответ
+    return jsonify({"status": "success", "message": "Данные успешно добавлены"}), 200
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

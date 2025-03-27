@@ -16,7 +16,7 @@ queries = {
             d.dm_class_id, 
             d.dm_draft, 
             d.dm_name""",
-    "scheme":"""SELECT PS.IND, -- ИНДЕКС ПЛАТЕЖНОГО УЗЛА ПО НЕМУ ПЕРЕХОД НА СЛЕДУЮЩУЮ СТРАНИЧКУ
+    "scheme": """SELECT PS.IND, -- ИНДЕКС ПЛАТЕЖНОГО УЗЛА ПО НЕМУ ПЕРЕХОД НА СЛЕДУЮЩУЮ СТРАНИЧКУ
                     PO.CODE_BILL || '/' || PO.SUBCODE_BILL AS ORDER_NUM, --ЩПЗ
                     PO.CONTRACT_NUM, -- № КОНТРАКТА
                     PO.CUSTOMER_NAME, -- ЗАКАЗЧИК
@@ -97,28 +97,29 @@ WHERE PDL.PROGRAMM_DSE_ID = PD.IND AND
     )
 """, 
     
-"level_products": """ select d.dm_index,
-       CASE
+    "level_products": """ select d.dm_index, --0
+       CASE 
          WHEN cc.cube_component_id IS NOT NULL THEN
           1
          ELSE
           0
-       END AS Check_value,
-       dc.short_name as class_name,
-       d.dm_name as dse_name,
-       d.dm_draft as dse_draft_number,
-       a.da_num as count_in_assembling,
-       a.cn_tech_marshrut as workshop_route,
-       cc.date_start,
-       cc.date_assembling, 
-       cc.date_end,
-       a.da_index,
-       pa.parent_da_path || '.' || a.da_index as da_path,
-       ex.num as excluded_num,
-       sp.cube_specification_id,
-       :in_parent_branch_num * a.da_num as branch_num,
-       (:in_parent_branch_num * a.da_num) - coalesce(ex.num, 0) as computed_num,
-       dc.seq as class_seq
+       END AS Check_value, --1
+       dc.short_name as class_name, --2
+       d.dm_name as dse_name, --3
+       d.dm_draft as dse_draft_number, --4
+       a.da_num as count_in_assembling, --5
+       a.cn_tech_marshrut as workshop_route,--6
+       cc.date_start, --7
+       cc.date_assembling, --8 
+       cc.date_end, --9
+       a.da_index, --10
+       pa.parent_da_path || '.' || a.da_index as da_path, --11
+       ex.num as excluded_num, --12
+       sp.cube_specification_id, --13
+       :in_parent_branch_num * a.da_num as branch_num, --14
+       (:in_parent_branch_num * a.da_num) - coalesce(ex.num, 0) as computed_num, --15
+       dc.seq as class_seq, --16
+       cc.cube_component_id --17
   from (select sp.cube_specification_id,
                l.programm_dse_id as prog_dse_id
           from cube_specification sp  
@@ -171,7 +172,8 @@ select d.dm_index,
        sp.cube_specification_id,
        sp.num as branch_num,
        sp.num as computed_num,
-       dc.seq as class_seq
+       dc.seq as class_seq,
+       cc.cube_component_id
   from (select sp.cube_specification_id,
                sp.dse_id,
                sp.num,
@@ -191,5 +193,26 @@ select d.dm_index,
  where :in_parent_da_index = 0
  order by class_seq, dse_draft_number, dse_name
  """,
+ 
+    "insert_cube_component": """
+        INSERT INTO CUBE_COMPONENTS (
+            cube_specification_id,
+            dse_id,
+            date_start,
+            date_end,
+            date_assembling,
+            da_index,
+            da_path 
+        )
+        VALUES (
+            :cube_specification_id,
+            :dse_id,
+            TO_DATE(:date_start, 'YYYY-MM-DD'),
+            TO_DATE(:date_end, 'YYYY-MM-DD'),
+            TO_DATE(:date_assembling, 'YYYY-MM-DD'),
+            :da_index,
+            :da_path
+        ) 
+    """,
 
 }
