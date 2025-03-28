@@ -214,5 +214,10 @@ select d.dm_index,
             :da_path
         ) 
     """,
-
+    
+    'delete_cube_component': """
+        DELETE FROM CUBE_COMPONENTS 
+        WHERE cube_component_id = :component_id
+    """
+    ,
 }

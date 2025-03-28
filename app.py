@@ -133,5 +133,29 @@ def insert_cube_component():
     # Если все ок, возвращаем JSON-ответ
     return jsonify({"status": "success", "message": "Данные успешно добавлены"}), 200
 
+@app.route('/delete_cube_component', methods=['POST'])
+def delete_cube_component():
+    try:
+        data = request.get_json()
+        component_id = data['cube_component_id']
+        
+        # Выполняем запрос
+        db_oracle.execute_query('delete_cube_component', {
+            'component_id': component_id
+        })
+        
+        return jsonify({
+            "success": True,
+            "message": "Запись успешно удалена"
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"Ошибка удаления: {str(e)}"
+        }), 500
+        
+  
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

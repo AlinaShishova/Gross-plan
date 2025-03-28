@@ -70,9 +70,10 @@
                         </button>
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-outline-dark">
-                            <i class="fa-solid fa-minus"></i> 
-                        </button>   
+                        <button class="btn btn-sm btn-outline-dark btn-delete" 
+                            data-component-id="{{ row[17] }}">
+                            <i class="fa-solid fa-minus"></i>
+                        </button>  
                     </td>
                 </tr>
                 {% endfor %}
@@ -212,6 +213,56 @@
             alert("Ошибка при сохранении данных");
         });
     }
+
+    // Функция для удаления записи
+    function deleteComponent(componentId) {
+        if (!confirm('Вы уверены, что хотите удалить запись?')) {
+            return false;
+        }
+       
+        const data = {
+            "cube_component_id": parseInt(componentId),
+        };
+        
+        fetch('/delete_cube_component', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Ошибка сети');
+            return response.json(); // Преобразуем ответ в JSON
+        })
+        .then(data => {
+            if (data.success) {
+                alert('Запись успешно удалена');
+                location.reload();
+            } else {
+                throw new Error(data.message || 'Неизвестная ошибка сервера');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка удаления:', error);
+            alert('Ошибка при удалении: ' + error.message);
+        });
+    }
+
+    // Обработчик клика для кнопок удаления
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.btn-delete').forEach(button => {
+            button.addEventListener('click', function() {
+                const componentId = this.dataset.componentId;
+                
+                if (componentId && componentId !== "None" && componentId !== "null") {
+                    deleteComponent(componentId);
+                } else {
+                    alert('Некорректный идентификатор записи');
+                }
+            });
+        });
+    });
 </script>
 
 {% endblock %}
