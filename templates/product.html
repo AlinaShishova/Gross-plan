@@ -68,8 +68,8 @@
                             data-specification-id =  "{{ row[13] }}"
                             data-dse-id = "{{ row[0] }}"
                             data-date-start = "{{ row[7] }}"
-                            data-date-end = "{{ row[8] }}"
-                            data-date-assembling = "{{ row[9] }}"
+                            data-date-end = "{{ row[9] }}"
+                            data-date-assembling = "{{ row[8] }}"
                             data-da-index = "{{ row[10] }}"
                             data-da-path = "{{ row[11] }}"                        
                             onclick="setRowId(this)">
@@ -104,12 +104,12 @@
                 <!-- Форма для ввода данных -->
                 <form id="dataForm">
                     <div class="mb-3">
-                        <label for="buildDat" class="form-label">Дата старта</label>
-                        <input type="date" class="form-control" id="buildDate" required>
+                        <label for="startDate" class="form-label">Дата старта</label>
+                        <input type="date" class="form-control" id="startDate" required>
                     </div>
                     <div class="mb-3">
-                        <label for="startDate" class="form-label">Дата сборки</label>
-                        <input type="date" class="form-control" id="startDate" required>
+                        <label for="buildDat" class="form-label">Дата сборки</label>
+                        <input type="date" class="form-control" id="buildDat" required>
                     </div>
                     <div class="mb-3">
                         <label for="releaseDate" class="form-label">Дата выпуска</label>
@@ -134,14 +134,16 @@
     let daPath = null;
 
     // Функция получения данных записи
+    // Функция получения данных записи
     function setRowId(button) {
         componentId = button.getAttribute('data-component-id'); // id компонента спецификации
         
         if (componentId && componentId !== "None" && componentId !== "null") {
             // Работаем по сценарию обновления
-            dStart = button.getAttribute('data-date-start'); // дата старта
-            dStop = button.getAttribute('data-date-end'); // дата готовности
-            dAssembl = button.getAttribute('data-date-assembling'); // дата сборки
+            const dateStart = button.getAttribute('data-date-start'); // дата старта
+            const dateEnd = button.getAttribute('data-date-end'); // дата готовности
+            const dateAssembling = button.getAttribute('data-date-assembling'); // дата сборки
+            
             // Заполняем поля формы датами
             document.getElementById('buildDate').value = formatDate(dateAssembling);
             document.getElementById('startDate').value = formatDate(dateStart);
@@ -153,7 +155,13 @@
             daId = button.getAttribute('data-da-index'); // da_index
             daPath = button.getAttribute('data-da-path'); // da_path
         }
-        //console.log("ДСЕ id:", dseId);
+        
+        // Функция форматирования даты
+        function formatDate(dateString) {
+            if (!dateString || dateString === "None" || dateString === "null") return '';
+            const date = new Date(dateString);
+            return isNaN(date.getTime()) ? '' : date.toISOString().split('T')[0];
+        }
     }
 
     // Функция для сохранения данных
@@ -169,14 +177,14 @@
             return;
         }
     
-        // Получаем и очищаем значения
+        // Получаем и очищаем значения дат
         const startDate = startDateInput.value.trim();
         const buildDate = buildDateInput.value.trim();
         const releaseDate = releaseDateInput.value.trim();
     
-        // Проверяем, что поля заполнены
+        // Проверяем, что поля с датами заполнены
         if (!startDate || !buildDate || !releaseDate) {
-            alert("Заполните поля");
+            alert("Заполните все поля дат");
             return;
         }
     
@@ -186,42 +194,49 @@
             return;
         }
     
-       
-        //------------------------------------------------
+        // Обработка daId и daPath
+        const daIdValue = daId === "None" || daId === "null" ? null : parseInt(daId);
+        const daPathValue = daPath === "None" || daPath === "null" ? null : daPath;
+    
         if (componentId && componentId !== "None" && componentId !== "null") {
-            // Обновление записи в таблице
+            // Обновление записи (существующий компонент)
             const data = {
-                "cube_component_id": parseInt(componentId), // Спецификация
-                "date_start": startDate, // Дата старта
-                "date_end": releaseDate, // Дата готовности
-                "date_assembling": buildDate, // Дата сборки          
-                };
-
+                "cube_component_id": parseInt(componentId),
+                "date_start": startDate,
+                "date_end": releaseDate,
+                "date_assembling": buildDate
+            };
+            // Здесь должна быть логика для обновления записи
         } else {
-           // Добавление записи в таблицу
+            // Создание новой записи
             const data = {
-                "cube_specification_id": parseInt(specificationId), // Спецификация
-                "dse_id": parseInt(dseId), // ДСЕ
-                "date_start": startDate, // Дата старта
-                "date_end": releaseDate, // Дата готовности
-                "date_assembling": buildDate, // Дата сборки
-                "da_index": parseInt(daId), // индекс сборки
-                "da_path": parseInt(daPath), // путь сборки           
-                };
+                "cube_specification_id": parseInt(specificationId),
+                "dse_id": parseInt(dseId),
+                "date_start": startDate,
+                "date_end": releaseDate,
+                "date_assembling": buildDate,
+                "da_index": daIdValue,  // Числовое значение или null
+                "da_path": daPathValue  // Строковое значение или null
+            };
+    
             // Отправляем данные на сервер
-            fetch("/insert_spec", {
+            fetch('/insert_cube_component', {
                 method: "POST",
                 headers: {
-                "Content-Type": "application/json",
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log("Ответ от сервера:", data);
-        
-            }
-
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Ответ от сервера:", data);
+                // Закрытие модального окна и сброс формы
+            })
+            .catch(error => {
+                console.error("Ошибка:", error);
+                alert("Ошибка при сохранении данных");
+            });
+        }
     }
 </script>
 
