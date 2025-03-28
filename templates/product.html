@@ -5,88 +5,80 @@
     <div class="text-center">
         <h1 class="h3 mb-5 fw-normal">Состав изделия</h1>
     </div>
-    <div class="row mt-5"> 
-    </div>
+    <div class="row mt-5"></div>
+    
     {% if results %}
     <div class="table-responsive" style="max-width: 100%; margin: 0 auto;">
         <table class="table">
             <thead class="table-light">
-            <tr>
-                <th scope="col"></th>
-                <th scope="col">Тип</th>
-                <th scope="col">Наименование</th>
-                <th scope="col">Обозначение по КД</th>
-                <th scope="col">Кол-во</th>
-                <th scope="col">Маршрут</th>
-                <th scope="col">Старт</th>
-                <th scope="col">Сборка</th>
-                <th scope="col">Выпуск</th>
-                <th scope="col"></th>
-                <th scope="col"></th>
-            </tr>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Тип</th>
+                    <th scope="col">Наименование</th>
+                    <th scope="col">Обозначение по КД</th>
+                    <th scope="col">Кол-во</th>
+                    <th scope="col">Маршрут</th>
+                    <th scope="col">Старт</th>
+                    <th scope="col">Сборка</th>
+                    <th scope="col">Выпуск</th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                </tr>
             </thead>
             <tbody class="table-group-divider">
                 {% for row in results %}
-            <tr>
-                <td>
-                    <!-- Чекбокс не активный только для информации -->
-                    <div class="form-check form-check-inline">
-                        <input 
-                          class="form-check-input" 
-                          type="checkbox" 
-                          id="toggleCheck-{{ row[1] }}" 
-                          {% if row[1] == 1 %}checked{% endif %}
-                          disabled
-                          style="cursor: default; opacity: 0.8;"
-                        >
-                        <label class="form-check-label" for="toggleCheck-{{ row[1] }}"></label>
-                    </div>
-                </td>
-                <td>{{ row[2] }}</td>
-                <td>{{ row[3] }}</td>
-                <td>
-                    <a href="{{ url_for('product', 
-                                        in_cube_spec_id=row[13], 
-                                        in_parent_da_path='None' if row[11] == None else row[11], 
-                                        in_parent_da_index='None' if row[10] == None else row[10],
-                                        in_parent_branch_num = row[14]
-                                        ) }}" 
-                    class="text-dark">
-                    {{ row[4] }}
-                    </a>
-                </td>
-                <td>{{ row[15]}}</td>
-                <td>{{ row[6] if row[6] is not none else '' }}</td>
-                <td>{{ row[7].strftime("%d-%m-%Y") if row[7] is not none else '' }}</td>
-                <td>{{ row[8].strftime("%d-%m-%Y") if row[8] is not none else '' }}</td>
-                <td>{{ row[9].strftime("%d-%m-%Y") if row[9] is not none else '' }}</td>
-                <td>
-                    <button class="btn btn-sm btn-outline-dark" 
-                            type="button" data-bs-toggle="modal" 
-                            data-bs-target = "#infoDateForm"
-                            data-component-id = "{{ row[17] }}"
-                            data-specification-id =  "{{ row[13] }}"
-                            data-dse-id = "{{ row[0] }}"
-                            data-date-start = "{{ row[7] }}"
-                            data-date-end = "{{ row[9] }}"
-                            data-date-assembling = "{{ row[8] }}"
-                            data-da-index = "{{ row[10] }}"
-                            data-da-path = "{{ row[11] }}"                        
-                            onclick="setRowId(this)">
-                            <i id="toggleIcon" class="fa-solid fa-plus"></i>
-                    </button>
-                <td>  
-                <td>
-                    <button  class="btn btn-sm btn-outline-dark">
-                       <i id="toggleIcon" class="fa-solid fa-minus"></i> 
-                    </button>   
-                </td>                 
-            </tr>
-            {% endfor %}
+                <tr>
+                    <td>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="toggleCheck-{{ row[1] }}" 
+                                   {% if row[1] == 1 %}checked{% endif %}
+                                   disabled style="cursor: default; opacity: 0.8;">
+                            <label class="form-check-label" for="toggleCheck-{{ row[1] }}"></label>
+                        </div>
+                    </td>
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>
+                    <td>
+                        <a href="{{ url_for('product', 
+                                          in_cube_spec_id=row[13], 
+                                          in_parent_da_path='None' if row[11] == None else row[11], 
+                                          in_parent_da_index='None' if row[10] == None else row[10],
+                                          in_parent_branch_num=row[14]) }}" 
+                           class="text-dark">
+                            {{ row[4] }}
+                        </a>
+                    </td>
+                    <td>{{ row[15] }}</td>
+                    <td>{{ row[6] if row[6] is not none else '' }}</td>
+                    <td>{{ row[7].strftime("%d-%m-%Y") if row[7] is not none else '' }}</td>
+                    <td>{{ row[8].strftime("%d-%m-%Y") if row[8] is not none else '' }}</td>
+                    <td>{{ row[9].strftime("%d-%m-%Y") if row[9] is not none else '' }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-dark" 
+                                type="button" data-bs-toggle="modal" 
+                                data-bs-target="#infoDateForm"
+                                data-component-id="{{ row[17] }}"
+                                data-specification-id="{{ row[13] }}"
+                                data-dse-id="{{ row[0] }}"
+                                data-date-start="{{ row[7] }}"
+                                data-date-end="{{ row[9] }}"
+                                data-date-assembling="{{ row[8] }}"
+                                data-da-index="{{ row[10] }}"
+                                data-da-path="{{ row[11] }}"                        
+                                onclick="setRowId(this)">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-dark">
+                            <i class="fa-solid fa-minus"></i> 
+                        </button>   
+                    </td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
-
     {% else %}
     <p class="text-center">Нет данных для отображения</p>
     {% endif %}
@@ -97,25 +89,23 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="infoDateFormLabel"> Введите данные: </h5>
+                <h5 class="modal-title" id="infoDateFormLabel">Введите данные:</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
             </div>
             <div class="modal-body">
-                <!-- Форма для ввода данных -->
                 <form id="dataForm">
                     <div class="mb-3">
                         <label for="startDate" class="form-label">Дата старта</label>
                         <input type="date" class="form-control" id="startDate" required>
                     </div>
                     <div class="mb-3">
-                        <label for="buildDat" class="form-label">Дата сборки</label>
-                        <input type="date" class="form-control" id="buildDat" required>
+                        <label for="buildDate" class="form-label">Дата сборки</label>
+                        <input type="date" class="form-control" id="buildDate" required>
                     </div>
                     <div class="mb-3">
                         <label for="releaseDate" class="form-label">Дата выпуска</label>
                         <input type="date" class="form-control" id="releaseDate" required>
                     </div>
-                    
                 </form>
             </div>
             <div class="modal-footer">
@@ -133,110 +123,94 @@
     let daId = null;
     let daPath = null;
 
-    // Функция получения данных записи
-    // Функция получения данных записи
+    function formatDate(dateString) { // странная фигня. почему без timezone  выдает на день раньше. Нужно разобраться. внимательнее далее!!!
+        if (!dateString || dateString === "None" || dateString === "null") return '';
+        
+        // Создаем дату без учета временной зоны
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return '';
+        
+        // Корректируем дату с учетом временной зоны
+        const timezoneOffset = date.getTimezoneOffset() * 60000;
+        const correctedDate = new Date(date.getTime() - timezoneOffset);
+        
+        return correctedDate.toISOString().split('T')[0];
+    }
+
     function setRowId(button) {
-        componentId = button.getAttribute('data-component-id'); // id компонента спецификации
+        componentId = button.getAttribute('data-component-id');
         
         if (componentId && componentId !== "None" && componentId !== "null") {
-            // Работаем по сценарию обновления
-            const dateStart = button.getAttribute('data-date-start'); // дата старта
-            const dateEnd = button.getAttribute('data-date-end'); // дата готовности
-            const dateAssembling = button.getAttribute('data-date-assembling'); // дата сборки
+            const dateStart = button.getAttribute('data-date-start');
+            const dateEnd = button.getAttribute('data-date-end');
+            const dateAssembling = button.getAttribute('data-date-assembling');
             
-            // Заполняем поля формы датами
-            document.getElementById('buildDate').value = formatDate(dateAssembling);
             document.getElementById('startDate').value = formatDate(dateStart);
+            document.getElementById('buildDate').value = formatDate(dateAssembling);
             document.getElementById('releaseDate').value = formatDate(dateEnd);
         } else {
-            // Сценарий добавления
-            specificationId = button.getAttribute('data-specification-id'); // id спецификации
-            dseId = button.getAttribute('data-dse-id'); // ДСЕ id        
-            daId = button.getAttribute('data-da-index'); // da_index
-            daPath = button.getAttribute('data-da-path'); // da_path
-        }
-        
-        // Функция форматирования даты
-        function formatDate(dateString) {
-            if (!dateString || dateString === "None" || dateString === "null") return '';
-            const date = new Date(dateString);
-            return isNaN(date.getTime()) ? '' : date.toISOString().split('T')[0];
+            specificationId = button.getAttribute('data-specification-id');
+            dseId = button.getAttribute('data-dse-id');
+            daId = button.getAttribute('data-da-index');
+            daPath = button.getAttribute('data-da-path');
         }
     }
 
-    // Функция для сохранения данных
     function saveData() {
-        // Получаем элементы формы
         const startDateInput = document.getElementById('startDate');
         const buildDateInput = document.getElementById('buildDate');
         const releaseDateInput = document.getElementById('releaseDate');
     
-        // Проверяем, что элементы существуют
         if (!startDateInput || !buildDateInput || !releaseDateInput) {
             console.error("Элементы формы не найдены!");
             return;
         }
     
-        // Получаем и очищаем значения дат
         const startDate = startDateInput.value.trim();
         const buildDate = buildDateInput.value.trim();
         const releaseDate = releaseDateInput.value.trim();
     
-        // Проверяем, что поля с датами заполнены
         if (!startDate || !buildDate || !releaseDate) {
             alert("Заполните все поля дат");
             return;
         }
     
-        // Проверяем, что выбрана строка
         if (!dseId) {
             alert("Не выбрана строка!");
             return;
         }
     
-        // Обработка daId и daPath
         const daIdValue = daId === "None" || daId === "null" ? null : parseInt(daId);
         const daPathValue = daPath === "None" || daPath === "null" ? null : daPath;
     
-        if (componentId && componentId !== "None" && componentId !== "null") {
-            // Обновление записи (существующий компонент)
-            const data = {
-                "cube_component_id": parseInt(componentId),
-                "date_start": startDate,
-                "date_end": releaseDate,
-                "date_assembling": buildDate
-            };
-            // Здесь должна быть логика для обновления записи
-        } else {
-            // Создание новой записи
-            const data = {
-                "cube_specification_id": parseInt(specificationId),
-                "dse_id": parseInt(dseId),
-                "date_start": startDate,
-                "date_end": releaseDate,
-                "date_assembling": buildDate,
-                "da_index": daIdValue,  // Числовое значение или null
-                "da_path": daPathValue  // Строковое значение или null
-            };
-    
-            // Отправляем данные на сервер
-            fetch('/insert_cube_component', {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Ответ от сервера:", data);
-                // Закрытие модального окна и сброс формы
-            })
-            .catch(error => {
-                console.error("Ошибка:", error);
-                alert("Ошибка при сохранении данных");
-            });
-        }
+        const data = {
+            "cube_specification_id": parseInt(specificationId),
+            "dse_id": parseInt(dseId),
+            "date_start": startDate,
+            "date_assembling": buildDate,
+            "date_end": releaseDate,
+            "da_index": daIdValue,
+            "da_path": daPathValue
+        };
+        
+        fetch('/insert_cube_component', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Ответ от сервера:", data);
+            const modal = bootstrap.Modal.getInstance(document.getElementById('infoDateForm'));
+            if (modal) modal.hide();
+            location.reload();
+        })
+        .catch(error => {
+            console.error("Ошибка:", error);
+            alert("Ошибка при сохранении данных");
+        });
     }
 </script>
 
