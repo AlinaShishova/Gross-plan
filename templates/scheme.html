@@ -27,7 +27,6 @@
                 <th scope="col">№ контракта</th>
                 <th scope="col">Заказчик</th>
                 <th scope="col">Наименование, обозначение</th>
-                <th scope="col">Количество</th>
                 <th scope="col"> СП </th>
             </tr>
             </thead>
@@ -41,7 +40,6 @@
                     <a href="{{ url_for('spec', ps_ind=row[0]) }}" class = "text-dark">{{ row[4] }}</a>
                 </th>
                 <td>{{ row[5] }}</td>
-                <td>{{ row[6] }}</td>
               
             </tr>
             {% endfor %}

@@ -15,7 +15,6 @@
             <tr>
                 <th scope="col">Наименование, обозначение</th>
                 <th scope="col">Тип</th>
-                <th scope="col">Кол-во</th>
                 <th scope="col">Схемы</th>
                 <th scope="col"></th>
             </tr>
@@ -26,18 +25,17 @@
                 <td>{{ row[2] }}</td>
                 <td>{{ row[3] }}</td>
                 <td>{{ row[4] }}</td>
-                <td>{{ row[5] }}</td>
                 <td>
                     <!-- Кнопка для открытия модального окна -->
-                    <button class="btn btn-outline-dark" 
+                    <button class="btn btn-outline-dark btn btn-sm " 
                             type="button" data-bs-toggle="modal" 
                             data-bs-target="#addSpecForm"
                             data-row-id="{{ row[0] }}" 
                             data-dse-id="{{ row[1] }}" 
                             onclick="setRowId(this)">
-                            +
+                            <i class="fa-solid fa-plus"></i>
                     </button>
-                <td>             
+                </td>           
             </tr>
             {% endfor %}
             </tbody>
@@ -63,10 +61,6 @@
                     <div class="mb-3">
                         <label for="date" class="form-label">Дата запуска</label>
                         <input type="date" class="form-control" id="date" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="quantity" class="form-label">Количество</label>
-                        <input type="number" class="form-control" id="quantity" required>
                     </div>
                 </form>
             </div>
@@ -94,22 +88,20 @@
     // Функция для сохранения данных
     function saveData() {
         // Получаем элементы формы
-        const quantityInput = document.getElementById('quantity');
         const dateInput = document.getElementById('date');
     
         // Проверяем, что элементы существуют
-        if (!quantityInput || !dateInput) {
+        if (!dateInput) {
             console.error("Элементы формы не найдены!");
             return;
         }
     
         // Получаем и очищаем значения
-        const quantity = quantityInput.value.trim();
         const date = dateInput.value.trim();
     
         // Проверяем, что поля заполнены
-        if (!quantity || !date) {
-            alert("Заполните поля");
+        if (!date) {
+            alert("Заполните поле");
             return;
         }
     
@@ -126,7 +118,6 @@
             "date_general": date, // Дата из модальной формы
             "stop": 0, // по умолчанию
             "spec_id": parseInt(currentRowId), // currentRowId из модальной формы
-            "num": parseInt(quantity), // Количество из модальной формы
             // "worshop_id": null // worshop_id остается пустым
         };
     

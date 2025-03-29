@@ -21,7 +21,6 @@ queries = {
                     PO.CONTRACT_NUM, -- № КОНТРАКТА
                     PO.CUSTOMER_NAME, -- ЗАКАЗЧИК
                     PS.ORDER_NAME || ' ' || PS.ORDER_DRAFT AS NAME_DRAFT_NUM, -- НАИМЕНОВАНИЕ, ОБОЗНАЧЕНИЕ
-                    PS.NUM, -- КОЛ-ВО
                     (SELECT COUNT(PDL.IND)|| '/0' FROM PROGRAMM_DSE_LINK PDL WHERE PDL.PROGRAMM_SUBORDER_ID = PS.IND) AS SP_COUNT -- СП
                 FROM
                     PROGRAMM_ORDER PO,
@@ -35,7 +34,7 @@ queries = {
                     PO.SUBCODE_BILL,
                     PO.SHORT_NAME""",
     "spec":"""
-        SELECT CS.CUBE_SPECIFICATION_ID, -- ИНДЕКС СПЕЦИФИКАЦИИ (СКРЫТ)
+        SELECT CS.CUBE_SPECIFICATION_ID, -- ИНДЕКС СПЕЦИФИКАЦИИ (СКРЫТ) 
                 CS.STOP, -- ЗНАЧЕК В РАБОТЕ = 1 /ОСТАНОВЛЕН = 0
                 CS.DSE_ID, -- ИНДЕКС ДСЕ ДЛЯ ПЕРЕХОДА К СОСТАВУ ИЗДЕЛИЯ (СКРЫТ)
                 (SELECT DM.DM_NAME || ' ' || DM.DM_DRAFT
@@ -44,7 +43,6 @@ queries = {
         (SELECT (SELECT PDT.NAME FROM PROGRAMM_DSE_TYPES PDT WHERE PDT.IND = PD.TYPE_)
                 FROM PROGRAMM_DSE PD
                 WHERE PD.IND = CS.SPEC_ID) AS TYPE_SPEC, -- ТИП
-                CS.NUM, -- КОЛ-ВО
                 CS.DATE_GENERAL, -- НАЧАЛО
                 (SELECT PD.TITLE FROM PROGRAMM_DSE PD WHERE PD.IND = CS.SPEC_ID) AS TITLE, -- ПРИМЕЧАНИЕ
                 CS.SPEC_ID -- ИНДЕКС СПЕЦИФИКАЦИИ (СКРЫТ, НА ВСЯКИЙ СЛУЧАЙ)
@@ -70,7 +68,6 @@ queries = {
           FROM DSE_MAIN DM
          WHERE DM.DM_INDEX = PD.DSE) AS DSE_NAME, -- НАИМЕНОВАНИЕ, ОБОЗНАЧЕНИЕ
        (SELECT PDT.NAME FROM PROGRAMM_DSE_TYPES PDT WHERE PDT.IND = PD.TYPE_) AS TYPE_SPEC, -- ТИП
-       PDL.NUM, -- КОЛ-ВО
        (SELECT COUNT(CS.CUBE_SPECIFICATION_ID)
           FROM CUBE_SPECIFICATION CS
          WHERE CS.SPEC_ID = PDL.IND) AS SH -- СХЕМ    
@@ -86,14 +83,13 @@ WHERE PDL.PROGRAMM_DSE_ID = PD.IND AND
         DATE_GENERAL,
         "STOP",
         SPEC_ID,
-        NUM
     )
     VALUES (
         :dse_id,
         TO_DATE(:date_general, 'YYYY-MM-DD'),
         :stop,
         :spec_id,
-        :num
+
     )
 """, 
     
@@ -107,19 +103,15 @@ WHERE PDL.PROGRAMM_DSE_ID = PD.IND AND
        dc.short_name as class_name, --2
        d.dm_name as dse_name, --3
        d.dm_draft as dse_draft_number, --4
-       a.da_num as count_in_assembling, --5
-       a.cn_tech_marshrut as workshop_route,--6
-       cc.date_start, --7
-       cc.date_assembling, --8 
-       cc.date_end, --9
-       a.da_index, --10
-       pa.parent_da_path || '.' || a.da_index as da_path, --11
-       ex.num as excluded_num, --12
-       sp.cube_specification_id, --13
-       :in_parent_branch_num * a.da_num as branch_num, --14
-       (:in_parent_branch_num * a.da_num) - coalesce(ex.num, 0) as computed_num, --15
-       dc.seq as class_seq, --16
-       cc.cube_component_id --17
+       a.cn_tech_marshrut as workshop_route,--5
+       cc.date_start, --6
+       cc.date_assembling, --7
+       cc.date_end, --8
+       a.da_index, --9
+       pa.parent_da_path || '.' || a.da_index as da_path, --10
+       sp.cube_specification_id, --11
+       dc.seq as class_seq, --12 
+       cc.cube_component_id --13
   from (select sp.cube_specification_id,
                l.programm_dse_id as prog_dse_id
           from cube_specification sp  
@@ -161,22 +153,17 @@ select d.dm_index,
        dc.short_name as class_name,
        d.dm_name as dse_name,
        d.dm_draft as dse_draft_number,
-       sp.num as count_in_assembling,
        null as workshop_route,
        cc.date_start,
        cc.date_assembling, 
        cc.date_end,
        null as da_index,
        null as da_path,
-       null as excluded_num,
        sp.cube_specification_id,
-       sp.num as branch_num,
-       sp.num as computed_num,
        dc.seq as class_seq,
        cc.cube_component_id
   from (select sp.cube_specification_id,
                sp.dse_id,
-               sp.num,
                l.programm_dse_id as prog_dse_id
           from cube_specification sp  
           left join programm_dse_link l

@@ -113,8 +113,8 @@ def product():
     results = db_oracle.execute_query('level_products', {
         "in_cube_spec_id": in_cube_spec_id,
         "in_parent_da_path": in_parent_da_path,
-        "in_parent_da_index": in_parent_da_index,
-        "in_parent_branch_num":in_parent_branch_num, 
+        "in_parent_da_index": in_parent_da_index
+
     })
 
     return render_template('product.html', results=results)
