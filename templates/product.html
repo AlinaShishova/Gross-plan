@@ -74,6 +74,7 @@
                             data-component-id="{{ row[17] }}">
                             <i class="fa-solid fa-minus"></i>
                         </button>  
+                        
                     </td>
                 </tr>
                 {% endfor %}
@@ -118,6 +119,7 @@
 </div>
 
 <script>
+    
     let componentId = null;
     let specificationId = null;
     let dseId = null;
@@ -250,11 +252,13 @@
     }
 
     // Обработчик клика для кнопок удаления
+    
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.btn-delete').forEach(button => {
             button.addEventListener('click', function() {
                 const componentId = this.dataset.componentId;
                 
+
                 if (componentId && componentId !== "None" && componentId !== "null") {
                     deleteComponent(componentId);
                 } else {

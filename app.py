@@ -156,6 +156,29 @@ def delete_cube_component():
         }), 500
         
   
+  
+@app.route('/delete_spec_component', methods=['POST'])
+def delete_spec_component():
+    try:
+        data = request.get_json()
+        component_id = data['spec_component_id']
+        
+        # Выполняем запрос
+        db_oracle.execute_query('delete_spec_component', {
+            'component_id': component_id
+        })
+        
+        return jsonify({
+            "success": True,
+            "message": "Запись успешно удалена"
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"Ошибка удаления: {str(e)}"
+        }), 500
+          
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

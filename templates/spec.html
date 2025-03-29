@@ -30,6 +30,57 @@
           .then(data => console.log(data))
           .catch(error => console.error("Ошибка:", error));
     }
+
+      // Функция для удаления записи
+      function deleteComponent(componentId) {
+        if (!confirm('Вы уверены, что хотите удалить запись?')) {
+            return false;
+        }
+       
+        const data = {
+            "spec_component_id": parseInt(componentId),
+        };
+        
+        fetch('/delete_spec_component', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Ошибка сети');
+            return response.json(); // Преобразуем ответ в JSON
+        })
+        .then(data => {
+            if (data.success) {
+                alert('Запись успешно удалена');
+                location.reload();
+            } else {
+                throw new Error(data.message || 'Неизвестная ошибка сервера');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка удаления:', error);
+            alert('Ошибка при удалении: ' + error.message);
+        });
+    }
+
+    // Обработчик клика для кнопок удаления
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.btn-delete').forEach(button => {
+            button.addEventListener('click', function() {
+                const componentId = this.dataset.componentId;
+                
+                if (componentId && componentId !== "None" && componentId !== "null") {
+                    deleteComponent(componentId);
+                } else {
+                    alert('Некорректный идентификатор записи');
+                }
+            });
+        });
+    });
+
 </script>
 
 <div class="container my-4">
@@ -62,7 +113,6 @@
                     <th>Статус</th>
                     <th>Наименование, обозначение</th>
                     <th>Тип</th>
-                    <th>Количество</th>
                     <th>Начало</th>
                     <th>Примечание</th>
                     <th></th>
@@ -85,12 +135,12 @@
                                             ) 
                                 }}" class = "text-dark">{{ row[3] }}</a>
                     </td> <!-- DSE_NAME -->
-                    <td>{{ row[4] }}</td> <!-- TYPE_SPEC -->
-                    <td>{{ row[5] }}</td> <!-- NUM -->
-                    <td>{{ row[6].strftime("%d-%m-%Y") }}</td> <!-- DATE_GENERAL -->
-                    <td>{{ row[7] }}</td> <!-- TITLE -->
+                    <td>{{ row[4]  if row[4] is not none else ''}}</td> <!-- TYPE_SPEC -->
+                    <td>{{ row[6].strftime("%d-%m-%Y")  if row[6] is not none else ''}}</td> <!-- DATE_GENERAL -->
+                    <td>{{ row[7]  if row[7] is not none else ''}}</td> <!-- TITLE -->
                     <td>
-                        <button class="btn btn-sm btn-outline-dark">
+                        <button class="btn btn-sm btn-outline-dark btn-delete"
+                            data-component-id="{{ row[0] }}">
                             <i class="fa-solid fa-minus"></i>
                         </button>
                     </td>
