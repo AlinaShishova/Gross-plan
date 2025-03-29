@@ -81,6 +81,63 @@
         });
     });
 
+
+    function editDate(specId) {
+        // Устанавливаем скрытый id спецификации
+        document.getElementById('specId').value = specId;
+        // Получаем текущую дату из таблицы и заполняем форму
+        const currentDate = document.getElementById('date-' + specId).innerText;
+        const dateInput = document.getElementById('newDate');
+        dateInput.value = currentDate ? currentDate : '';
+        
+        // Открываем модальное окно
+        const modal = new bootstrap.Modal(document.getElementById('editDateModal'));
+        modal.show();
+    }
+
+
+
+    function saveDate() {
+        const specId = document.getElementById('specId').value;
+        const newDate = document.getElementById('newDate').value;
+
+        if (!newDate) {
+            alert('Выберите дату.');
+            return;
+        }
+
+        // Отправка запроса на сервер для обновления даты
+        fetch('/update_spec_date', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ specId: specId, newDate: newDate })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Обновляем дату на странице
+                document.getElementById('date-' + specId).innerText = formatDateForDisplay(newDate);
+                // Закрываем модальное окно
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editDateModal'));
+                modal.hide();
+            } else {
+                alert('Произошла ошибка при сохранении даты.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Произошла ошибка при отправке данных.');
+        });
+    }
+
+    function formatDateForDisplay(dateStr) {
+        const [year, month, day] = dateStr.split('-');
+        return `${day}-${month}-${year}`;
+    }
+
+
 </script>
 
 <div class="container my-4">
@@ -136,7 +193,12 @@
                                 }}" class = "text-dark">{{ row[3] }}</a>
                     </td> <!-- DSE_NAME -->
                     <td>{{ row[4]  if row[4] is not none else ''}}</td> <!-- TYPE_SPEC -->
-                    <td>{{ row[5].strftime("%d-%m-%Y")  if row[5] is not none else ''}}</td> <!-- DATE_GENERAL -->
+                    <td>
+                        <span id="date-{{ row[0] }}">{{ row[5].strftime('%d-%m-%Y') if row[5] is not none else '' }}</span>
+                        <button class="btn btn-sm btn-outline-dark ms-2" onclick="editDate({{ row[0] }})">
+                            <i class="fa-solid fa-pencil"></i>
+                        </button>
+                    </td> <!-- DATE_GENERAL -->
                     <td>{{ row[6]  if row[6] is not none else ''}}</td> <!-- TITLE -->
                     <td>
                         <button class="btn btn-sm btn-outline-dark btn-delete"
@@ -150,4 +212,32 @@
         </table>
     </div>
 </div>
+
+
+
+<!-- Модальное окно для редактирования даты -->
+<div class="modal fade" id="editDateModal" tabindex="-1" aria-labelledby="editDateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editDateModalLabel">Редактирование даты</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editDateForm">
+                    <input type="hidden" id="specId" name="specId">
+                    <div class="mb-3">
+                        <label for="newDate" class="form-label">Новая дата</label>
+                        <input type="date" class="form-control" id="newDate" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveDate()">Сохранить</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отменить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

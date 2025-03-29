@@ -207,4 +207,13 @@ select d.dm_index,
         WHERE cube_component_id = :component_id
     """
     ,
+    
+    
+    "update_spec_date":"""
+        UPDATE CUBE_SPECIFICATION 
+        SET DATE_GENERAL = TO_DATE(:date_start , 'YYYY-MM-DD')
+        WHERE CUBE_SPECIFICATION_ID = :cube_specification_id
+    
+    """,
+     
 }

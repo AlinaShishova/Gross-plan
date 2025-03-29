@@ -180,5 +180,14 @@ def delete_spec_component():
         }), 500
           
 
+@app.route('/update_spec_date', methods=['POST'])
+def update_spec_date():
+    data = request.json
+    row_id = data["specId"]
+    new_date = data["newDate"]
+    db_oracle.execute_query("update_spec_date", {"date_start": new_date, "cube_specification_id": row_id})
+    return jsonify({"success": True, "cube_specification_id": row_id, "new_date": new_date})
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
