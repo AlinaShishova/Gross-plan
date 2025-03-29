@@ -120,6 +120,7 @@ def product():
     return render_template('product.html', results=results)
 
 @app.route('/insert_cube_component', methods=['POST']) # Сохранение позиции cube_components
+@login_required
 def insert_cube_component():
     # Получаем данные из запроса
     data = request.json
@@ -134,6 +135,7 @@ def insert_cube_component():
     return jsonify({"status": "success", "message": "Данные успешно добавлены"}), 200
 
 @app.route('/delete_cube_component', methods=['POST'])
+@login_required
 def delete_cube_component():
     try:
         data = request.get_json()
@@ -158,6 +160,7 @@ def delete_cube_component():
   
   
 @app.route('/delete_spec_component', methods=['POST'])
+@login_required
 def delete_spec_component():
     try:
         data = request.get_json()
@@ -181,12 +184,21 @@ def delete_spec_component():
           
 
 @app.route('/update_spec_date', methods=['POST'])
+@login_required
 def update_spec_date():
     data = request.json
     row_id = data["specId"]
     new_date = data["newDate"]
     db_oracle.execute_query("update_spec_date", {"date_start": new_date, "cube_specification_id": row_id})
     return jsonify({"success": True, "cube_specification_id": row_id, "new_date": new_date})
+
+
+
+@app.route('/gantt/')
+@login_required
+def gantt():
+    return render_template ('gantt.html')
+
 
 
 if __name__ == '__main__':
