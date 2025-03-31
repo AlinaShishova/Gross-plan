@@ -52,10 +52,10 @@ def spec_select():
 @app.route('/insert_spec', methods=['POST'])
 def insert_spec():
     # Получаем данные из запроса
-    data = request.json
+    data = request.get_json() 
 
     # Проверяем, что все необходимые поля присутствуют
-    required_fields = ["dse_id", "date_general", "spec_id", "num"]
+    required_fields = ["dse_id", "date_general", "stop", "spec_id"]
     print("Полученные данные:", data)  # Временный лог
     if not all(field in data for field in required_fields):
         return jsonify({"status": "error", "message": "Недостаточно данных"}), 400

@@ -81,14 +81,14 @@ WHERE PDL.PROGRAMM_DSE_ID = PD.IND AND
     INSERT INTO CUBE_SPECIFICATION (
         DSE_ID,
         DATE_GENERAL,
-        "STOP",
-        SPEC_ID,
+        STOP,
+        SPEC_ID
     )
     VALUES (
         :dse_id,
         TO_DATE(:date_general, 'YYYY-MM-DD'),
         :stop,
-        :spec_id,
+        :spec_id
 
     )
 """, 

@@ -88,14 +88,17 @@
         // Получаем текущую дату из таблицы и заполняем форму
         const currentDate = document.getElementById('date-' + specId).innerText;
         const dateInput = document.getElementById('newDate');
-        dateInput.value = currentDate ? currentDate : '';
+        dateInput.value = currentDate ? formatDateForInput(currentDate) : '';
         
         // Открываем модальное окно
         const modal = new bootstrap.Modal(document.getElementById('editDateModal'));
         modal.show();
     }
 
-
+    function formatDateForInput(dateStr) {
+        const [day, month, year] = dateStr.split('-');
+        return `${year}-${month}-${day}`;
+    }
 
     function saveDate() {
         const specId = document.getElementById('specId').value;
