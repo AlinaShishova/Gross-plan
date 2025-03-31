@@ -82,10 +82,10 @@ def product():
     in_cube_spec_id = request.args.get('in_cube_spec_id') 
     in_parent_da_path = request.args.get('in_parent_da_path')
     in_parent_da_index = request.args.get('in_parent_da_index')
-    in_parent_branch_num = request.args.get('in_parent_branch_num')
+    # in_parent_branch_num = request.args.get('in_parent_branch_num')
     
     # Проверяем обязательные параметры
-    if not all([in_cube_spec_id, in_parent_da_path, in_parent_da_index,in_parent_branch_num]):
+    if not all([in_cube_spec_id, in_parent_da_path, in_parent_da_index]):
         return "Не все обязательные параметры переданы", 400
     
     # Обработка для in_parent_da_index
@@ -100,7 +100,7 @@ def product():
     # Преобразуем в int
     try:
         in_cube_spec_id = int(in_cube_spec_id)
-        in_parent_branch_num = int(in_parent_branch_num)
+        # in_parent_branch_num = int(in_parent_branch_num)
     except ValueError:
         return "Некорректный параметр in_cube_spec_id", 400
     
