@@ -208,6 +208,11 @@ select d.dm_index,
     """
     ,
     
+      
+    'delete_spec': """
+        DELETE FROM CUBE_SPECIFICATION
+        WHERE CUBE_SPECIFICATION_ID = :spec_id
+    """, 
     
     "update_spec_date":"""
         UPDATE CUBE_SPECIFICATION 

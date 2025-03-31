@@ -38,10 +38,10 @@
         }
        
         const data = {
-            "spec_component_id": parseInt(componentId),
+            "spec_id": parseInt(componentId),
         };
         
-        fetch('/delete_spec_component', {
+        fetch('/delete_spec', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -159,16 +159,16 @@ def delete_cube_component():
         
   
   
-@app.route('/delete_spec_component', methods=['POST'])
+@app.route('/delete_spec', methods=['POST'])
 @login_required
 def delete_spec_component():
     try:
         data = request.get_json()
-        component_id = data['spec_component_id']
+        component_id = data['spec_id']
         
         # Выполняем запрос
-        db_oracle.execute_query('delete_spec_component', {
-            'component_id': component_id
+        db_oracle.execute_query('delete_spec', {
+            'spec_id': component_id
         })
         
         return jsonify({
