@@ -35,8 +35,8 @@
                             <label class="form-check-label" for="toggleCheck-{{ row[1] }}"></label>
                         </div>
                     </td>
-                    <td>{{ row[2] }}</td>
-                    <td>{{ row[3] }}</td>
+                    <td>{{ row[2] if row[2] is not none else '' }}</td>
+                    <td>{{ row[3] if row[3] is not none else '' }}</td>
                     <td>
                         <a href="{{ url_for('product', 
                                           in_cube_spec_id=row[11], 
@@ -44,7 +44,7 @@
                                           in_parent_da_index='None' if row[9] == None else row[9]
                                           ) }}" 
                            class="text-dark">
-                            {{ row[4] }}
+                            {{ row[4] if row[4] is not none else '' }}
                         </a>
                     </td>
                     <td>{{ row[5] if row[5] is not none else '' }}</td>
@@ -265,6 +265,17 @@
             });
         });
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+    const today = new Date().toISOString().split("T")[0]; // Получаем текущую дату в формате YYYY-MM-DD
+
+    document.getElementById("startDate").value = today;
+    document.getElementById("buildDate").value = today;
+    document.getElementById("releaseDate").value = today;
+});
+
+
+
 </script>
 
 {% endblock %}

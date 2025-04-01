@@ -166,6 +166,14 @@
             alert("Произошла ошибка при отправке данных.");
         });
     }
+
+    document.addEventListener("DOMContentLoaded", function () {
+    const today = new Date().toISOString().split("T")[0]; // Получаем текущую дату в формате YYYY-MM-DD
+
+    document.getElementById("date").value = today;
+});
+
+
 </script>
 
 {% endblock %}

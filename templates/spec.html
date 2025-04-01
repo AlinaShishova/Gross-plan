@@ -193,7 +193,7 @@
                                             in_parent_da_index = 0,
                                             in_parent_branch_num = 0
                                             ) 
-                                }}" class = "text-dark">{{ row[3] }}</a>
+                                }}" class = "text-dark">{{ row[3]  if row[3] is not none else '' }}</a>
                     </td> <!-- DSE_NAME -->
                     <td>{{ row[4]  if row[4] is not none else ''}}</td> <!-- TYPE_SPEC -->
                     <td>
