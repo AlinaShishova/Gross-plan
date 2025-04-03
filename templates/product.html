@@ -237,7 +237,6 @@
         })
         .then(data => {
             if (data.success) {
-                alert('Запись успешно удалена');
                 location.reload();
             } else {
                 throw new Error(data.message || 'Неизвестная ошибка сервера');
