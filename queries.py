@@ -220,5 +220,15 @@ select d.dm_index,
         WHERE CUBE_SPECIFICATION_ID = :cube_specification_id
     
     """,
+    
+    "gantt":"""
+        SELECT d.dm_name as dse_name, date_start, date_end
+        FROM cube_components cc
+        join cube_specification sp 
+        on cc.cube_specification_id = sp.cube_specification_id
+        join dse_main d
+        on cc.dse_id = d.dm_index 
+        WHERE cc.cube_specification_id  = :node_id
+    """
      
 }

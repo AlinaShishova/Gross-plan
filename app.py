@@ -201,5 +201,25 @@ def gantt():
 
 
 
+@app.route('/get_gantt_data/<int:node_id>')
+def get_gantt_data(node_id):
+    try:
+        rows = db_oracle.execute_query("gantt", {"node_id": node_id})
+
+        result = []
+        for row in rows:
+            result.append({
+                "name": row[0],
+                "start": row[1].strftime("%Y-%m-%d") if row[1] else None,
+                "end": row[2].strftime("%Y-%m-%d") if row[2] else None
+            })
+
+        return jsonify(result)
+
+    except Exception as e:
+        print(f"Ошибка при получении графика: {e}")
+        return jsonify({"error": "Ошибка сервера"}), 500
+    
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
