@@ -281,7 +281,9 @@
            max-height: 1000px;
            margin: 1em auto;
        }   
-       </style>    
+       </style>  
+       
+       
 <!-- Функция для загрузки диаграммы Гантта -->
 <script>
 
@@ -292,14 +294,48 @@
         fetch(`/get_gantt_data/${nodeId}`)
             .then(response => response.json())
             .then(data => {
-                const chartData = data.map((item, index) => ({
-                    id: `task-${index}`,
-                    name: item.name,
-                    start: Date.parse(item.start),
-                    end: Date.parse(item.end),
-                    
-                }));
+                const chartData = [
+    {
+        id: 'node', // Корень
+        name: nodeName,
+        collapsed: true
+    },
+    {
+        id: 'node-assembly',
+        name: 'Сборка',
+        parent: 'node',
+        collapsed: true
+    },
+    {
+        id: 'node-components',
+        name: 'Комплектация',
+        parent: 'node',
+        collapsed: true
+    }
+];
+
+// Добавляем задачи
+data.forEach((item, index) => {
+    chartData.push({
+        id: `task-${index}`,
+        name: item.name,
+        start: Date.parse(item.start),
+        end: Date.parse(item.end),
+        parent: item.type === 'Сборка' ? 'node-assembly' : 'node-components'
+    });
+});
     console.log(chartData);
+    Highcharts.setOptions({
+    lang: {
+        week: 'Неделя'
+    },
+    time: {
+        dateTimeLabelFormats: {
+            week: 'Неделя %W'
+        }
+    }
+});
+
                 Highcharts.ganttChart('ganttContainer', {
                     title: { text: `${nodeName}` },
                     xAxis: {
@@ -313,9 +349,13 @@
         }
     },
                     yAxis: {
-      uniqueNames: true,
-      
+                        type: 'treegrid',
+        uniqueNames: true,
+        grid: {
+            enabled: true
+        }
     },
+      
     navigator: {
       enabled: true,
       liveRedraw: true,
