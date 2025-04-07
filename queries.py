@@ -35,7 +35,7 @@ queries = {
                     PO.SHORT_NAME""",
     "spec":"""
         SELECT CS.CUBE_SPECIFICATION_ID, -- ИНДЕКС СПЕЦИФИКАЦИИ (СКРЫТ) 
-                CS.STOP, -- ЗНАЧЕК В РАБОТЕ = 1 /ОСТАНОВЛЕН = 0
+                CS.STOP, -- ЗНАЧЕК В РАБОТЕ = 1 /ОСТАНОВЛЕН = 0 
                 CS.DSE_ID, -- ИНДЕКС ДСЕ ДЛЯ ПЕРЕХОДА К СОСТАВУ ИЗДЕЛИЯ (СКРЫТ)
                 (SELECT DM.DM_NAME || ' ' || DM.DM_DRAFT
         FROM DSE_MAIN DM

@@ -22,7 +22,6 @@
                     <th scope="col">Выпуск</th>
                     <th scope="col"></th>
                     <th scope="col"></th>
-                    <th scope="col">График</th>
                 </tr>
             </thead>
             <tbody class="table-group-divider">
@@ -74,19 +73,7 @@
                             <i class="fa-solid fa-minus"></i>
                         </button>  
                         
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-dark" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#ganttModal"
-                                data-node-id="{{ row[0] }}"
-                                data-specification-id="{{ row[11] }}"
-                                data-specification-name="{{ row[3] }}" 
-                                onclick="loadGanttChart(this)">
-                            <i class="fa-solid fa-chart-gantt"></i> 
-                        </button>
-                      </td>
-                      
+                    </td>  
 
                 </tr>
                 {% endfor %}
@@ -130,25 +117,6 @@
     </div>
 </div>
 
-<!-- Модальное окно для диаграммы Гантта -->
-<div class="modal fade" id="ganttModal" tabindex="-1" aria-labelledby="ganttModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="ganttModalLabel">График сборки для узла </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-        </div>
-        <div class="modal-body">
-          <div id="ganttContainer" style="height: 500px;"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <script src="/static/highcharts/code/highcharts.js"></script>
-    <script src="/static/highcharts/code/modules/gantt.js"></script>
-    <script src="/static/highcharts/code/modules/accessibility.js"></script>
-    <script src="/static/highcharts/code/modules/exporting.js"></script>
 
 <script>
     
@@ -309,35 +277,6 @@
 
 </script>
 
-<!-- Функция для загрузки диаграммы Гантта -->
-<script>
-    function loadGanttChart(button) {
-        const nodeId = button.getAttribute("data-specification-id");
-        const nodeName = button.getAttribute("data-specification-name");
-    
-        fetch(`/get_gantt_data/${nodeId}`)
-            .then(response => response.json())
-            .then(data => {
-                const chartData = data.map((item, index) => ({
-                    id: `task-${index}`,
-                    name: item.name,
-                    start: Date.parse(item.start),
-                    end: Date.parse(item.end)
-                }));
-    console.log(chartData);
-                Highcharts.ganttChart('ganttContainer', {
-                    title: { text: `${nodeName}` },
-                    series: [{
-                        name: 'Составляющие',
-                        data: chartData
-                    }]
-                });
-            })
-            .catch(error => {
-                console.error("Ошибка при загрузке графика:", error);
-            });
-    }
-    </script>
     
   
 {% endblock %}
