@@ -209,14 +209,11 @@
                         </button>
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-outline-dark" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#ganttModal"
-                                data-specification-id="{{ row[0] }}"
-                                data-specification-name="{{ row[3] }}" 
-                                onclick="loadGanttChart(this)">
-                            <i class="fa-solid fa-chart-gantt"></i> 
-                        </button>
+                        <a href="{{ url_for('gantt', node_id=row[0], spec_name=row[3]) }}"  
+                        class="btn btn-sm btn-outline-dark">
+                         <i class="fa-solid fa-chart-gantt"></i>
+                     </a>
+                     
                     </td>
                 </tr>
                 {% endfor %}
@@ -252,169 +249,8 @@
     </div>
 </div>
 
-
-
-
-<!-- Модальное окно для диаграммы Гантта -->
-<div class="modal fade" id="ganttModal" tabindex="-1" aria-labelledby="ganttModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="ganttModalLabel">График сборки для узла </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-        </div>
-        <div class="modal-body">
-          <div id="ganttContainer" style="height: 500px;"></div>
-        </div>
-      </div>
-    </div>
-  </div>
   
-  <script src="/static/highcharts/code/highcharts.js"></script>
-    <script src="/static/highcharts/code/modules/gantt.js"></script>
-    <script src="/static/highcharts/code/modules/accessibility.js"></script>
-    <script src="/static/highcharts/code/modules/exporting.js"></script>
-
-    <style>
-        #container {
-           max-width: 1000px;
-           max-height: 1000px;
-           margin: 1em auto;
-       }   
-       </style>  
        
        
-<!-- Функция для загрузки диаграммы Гантта -->
-<script>
 
-    function loadGanttChart(button) {
-        const nodeId = button.getAttribute("data-specification-id");
-        const nodeName = button.getAttribute("data-specification-name");
-    
-        fetch(`/get_gantt_data/${nodeId}`)
-            .then(response => response.json())
-            .then(data => {
-                const chartData = [
-    {
-        id: 'node', // Корень
-        name: nodeName,
-        collapsed: true
-    },
-    {
-        id: 'node-assembly',
-        name: 'Сборка',
-        parent: 'node',
-        collapsed: true
-    },
-    {
-        id: 'node-components',
-        name: 'Комплектация',
-        parent: 'node',
-        collapsed: true
-    }
-];
-
-// Добавляем задачи
-data.forEach((item, index) => {
-    chartData.push({
-        id: `task-${index}`,
-        name: item.name,
-        start: Date.parse(item.start),
-        end: Date.parse(item.end),
-        parent: item.type === 'Сборка' ? 'node-assembly' : 'node-components'
-    });
-});
-    console.log(chartData);
-    Highcharts.setOptions({
-    lang: {
-        week: 'Неделя'
-    },
-    time: {
-        dateTimeLabelFormats: {
-            week: 'Неделя %W'
-        }
-    }
-});
-
-                Highcharts.ganttChart('ganttContainer', {
-                    title: { text: `${nodeName}` },
-                    xAxis: {
-        type: 'datetime',
-        labels: {
-            formatter: function () {
-                // Форматирование: всегда выводим "Неделя " и номер недели
-                var weekNum = Highcharts.dateFormat('%W', this.value);
-                return 'Неделя ' + weekNum;
-            }
-        }
-    },
-                    yAxis: {
-                        type: 'treegrid',
-        uniqueNames: true,
-        grid: {
-            enabled: true
-        }
-    },
-      
-    navigator: {
-      enabled: true,
-      liveRedraw: true,
-      series: {
-        type: 'gantt',
-        pointPlacement: 0.5,
-        pointPadding: 0.25,
-        accessibility: {
-          enabled: false
-        }
-      },
-      yAxis: {
-        min: 0,
-        max: 3,
-        reversed: true,
-
-      },
-      
-    },
-    scrollbar: {
-      enabled: true
-    },
-    
-  
-    rangeSelector: {
-      enabled: true,
-      selected: 0
-    },
-  
-    accessibility: {
-      point: {
-        descriptionFormat: '{yCategory}. Task {completed.amount * 100:.1f}% completed. ' +
-                            'Start {x:%Y-%m-%d}, end {x2:%Y-%m-%d}.'
-      },
-      series: {
-        descriptionFormat: '{name}'
-      }
-    },
-    
-    lang: {
-      accessibility: {
-        axis: {
-          xAxisDescriptionPlural: 'The chart has a two-part X axis showing time in both week numbers and days.',
-          yAxisDescriptionPlural: 'The chart has one Y axis showing task categories.'
-        }
-      }
-    },
-  
-  
-                    series: [{
-                        name: 'Составляющие',
-                        data: chartData
-                       
-                    }]
-                });
-            })
-            .catch(error => {
-                console.error("Ошибка при загрузке графика:", error);
-            });
-    }
-    </script>
 {% endblock %}

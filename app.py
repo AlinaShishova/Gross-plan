@@ -194,31 +194,34 @@ def update_spec_date():
 
 
 
-@app.route('/gantt/')
-@login_required
-def gantt():
-    return render_template ('gantt.html')
 
-
-
-@app.route('/get_gantt_data/<int:node_id>')
-def get_gantt_data(node_id):
+@app.route('/gantt/<int:node_id>')
+def gantt(node_id):
     try:
+        spec_name = request.args.get('spec_name', default='Без названия')
         rows = db_oracle.execute_query("gantt", {"node_id": node_id})
-
         result = []
-        for row in rows:
+        
+
+        for row in rows:            
             result.append({
-                "name": row[0],
-                "start": row[1].strftime("%Y-%m-%d") if row[1] else None,
-                "end": row[2].strftime("%Y-%m-%d") if row[2] else None
+                "id": row[0],
+                "name": row[1],
+                "parent": row[2],
+                "d_start": row[3],
+                "d_end": row[4],
+                "color": row[7],
             })
 
-        return jsonify(result)
+            
+
+        return render_template('gantt.html', gantt_data=result, spec_name=spec_name)
+       
 
     except Exception as e:
         print(f"Ошибка при получении графика: {e}")
         return jsonify({"error": "Ошибка сервера"}), 500
+
     
 # Тест тепловой карты загрузки
 # ===================================================================

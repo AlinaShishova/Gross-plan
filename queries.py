@@ -221,14 +221,71 @@ select d.dm_index,
     
     """,
     
-    "gantt":"""
-        SELECT d.dm_name as dse_name, date_start, date_end
-        FROM cube_components cc
-        join cube_specification sp 
-        on cc.cube_specification_id = sp.cube_specification_id
-        join dse_main d
-        on cc.dse_id = d.dm_index 
-        WHERE cc.cube_specification_id  = :node_id
+    # "gantt":"""
+    #     SELECT cc.dse_id, d.dm_name as dse_name, cc.da_index, da.dm_index_where, cc.date_start, cc.date_end, cc.date_assembling
+    #     FROM cube_components cc
+    #     join cube_specification sp 
+    #     on cc.cube_specification_id = sp.cube_specification_id
+    #     join dse_main d
+    #     on cc.dse_id = d.dm_index 
+    #     join dse_assembling da on da.da_index = cc.da_index
+    #     WHERE cc.cube_specification_id  = :node_id 
+    # """
+    
+    
+#  Для диаграммы Ганнта
+"gantt": """
+    SELECT 
+    'S' || cc.cube_component_id AS id,
+    dm.dm_name || ' ' || dm.dm_draft AS name,
+    CASE 
+        WHEN cc_parent.cube_component_id IS NOT NULL THEN 'S' || cc_parent.cube_component_id 
+        ELSE NULL 
+    END AS parent,
+    TO_CHAR(cc.date_start, 'YYYY-MM-DD') AS d_start,
+    TO_CHAR(cc.date_end, 'YYYY-MM-DD') AS d_end,
+    0 AS progress,
+    NULL AS dependency,
+    '#7cb5ec' AS color,  -- Синий — основная задача
+    NULL AS milestone
+FROM cube_components cc
+JOIN dse_main dm ON dm.dm_index = cc.dse_id
+LEFT JOIN dse_assembling da ON da.dm_index_what = cc.dse_id
+LEFT JOIN cube_components cc_parent ON cc_parent.dse_id = da.dm_index_where 
+    AND cc_parent.cube_specification_id = cc.cube_specification_id
+WHERE cc.cube_specification_id = :node_id
+
+UNION ALL
+
+SELECT 
+    'K' || cc.cube_component_id AS id,
+    'Изготовление комплектующих' AS name,
+    'S' || cc.cube_component_id AS parent,
+    TO_CHAR(cc.date_start, 'YYYY-MM-DD') AS d_start,
+    TO_CHAR(cc.date_assembling, 'YYYY-MM-DD') AS d_end,
+    0 AS progress,
+    NULL AS dependency,
+    '#f7a35c' AS color,  -- Оранжевый
+    NULL AS milestone
+FROM cube_components cc
+WHERE cc.cube_specification_id = :node_id
+
+UNION ALL
+
+SELECT 
+    'I' || cc.cube_component_id AS id,
+    'Сборка/обработка изделия' AS name,
+    'S' || cc.cube_component_id AS parent,
+    TO_CHAR(cc.date_assembling, 'YYYY-MM-DD') AS d_start,
+    TO_CHAR(cc.date_end, 'YYYY-MM-DD') AS d_end,
+    0 AS progress,
+    NULL AS dependency,
+    '#90ed7d' AS color,  -- Зеленый
+    NULL AS milestone
+FROM cube_components cc
+WHERE cc.cube_specification_id = :node_id
+
+
     """
      
 }
