@@ -220,6 +220,14 @@ def get_gantt_data(node_id):
         print(f"Ошибка при получении графика: {e}")
         return jsonify({"error": "Ошибка сервера"}), 500
     
+# Тест тепловой карты загрузки
+# ===================================================================
+from chart_generator import generate_heatmap
+@app.route("/heatmap/")
+def show_heatmap():
+    heatmap_html = generate_heatmap()
+    return render_template("heatmap.html", heatmap_html=heatmap_html)
+# ===================================================================
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
