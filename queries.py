@@ -279,7 +279,7 @@ SELECT
     TO_CHAR(cc.date_assembling, 'YYYY-MM-DD') AS d_start,
     TO_CHAR(cc.date_end, 'YYYY-MM-DD') AS d_end,
     0 AS progress,
-    NULL AS dependency,
+    'K' || cc.cube_component_id AS dependency,
     '#90ed7d' AS color,  -- Зеленый
     NULL AS milestone
 FROM cube_components cc
