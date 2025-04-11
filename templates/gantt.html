@@ -32,7 +32,9 @@
       parent: task.parent || undefined,
       start: task.d_start ? Date.parse(task.d_start) : undefined,
       end: task.d_end ? Date.parse(task.d_end) : undefined,
-      color: task.color
+      color: task.color,
+      dependency:task.dependency || undefined,
+
     }));
   }
   

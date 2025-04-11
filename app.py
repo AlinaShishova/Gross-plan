@@ -211,6 +211,7 @@ def gantt(node_id):
                 "d_start": row[3],
                 "d_end": row[4],
                 "color": row[7],
+                "dependency":row[6]
             })
 
             

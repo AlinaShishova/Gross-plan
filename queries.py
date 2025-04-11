@@ -245,7 +245,10 @@ select d.dm_index,
     TO_CHAR(cc.date_start, 'YYYY-MM-DD') AS d_start,
     TO_CHAR(cc.date_end, 'YYYY-MM-DD') AS d_end,
     0 AS progress,
-    NULL AS dependency,
+    CASE 
+        WHEN cc_parent.cube_component_id IS NOT NULL THEN 'S' || cc_parent.cube_component_id 
+        ELSE NULL 
+    END AS dependency,
     '#7cb5ec' AS color,  -- Синий — основная задача
     NULL AS milestone
 FROM cube_components cc
