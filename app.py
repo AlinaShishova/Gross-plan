@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from flask_bootstrap import Bootstrap5
 from config import Config
+from datetime import datetime
 import db_oracle
 from auth_wraps import login_required 
 from routes.auth import auth_bp
@@ -201,9 +202,19 @@ def gantt(node_id):
         spec_name = request.args.get('spec_name', default='Без названия')
         rows = db_oracle.execute_query("gantt", {"node_id": node_id})
         result = []
-        
+        today = datetime.today()
 
-        for row in rows:            
+        for row in rows:
+            start = datetime.strptime(row[3], '%Y-%m-%d') if row[3] else None
+            end = datetime.strptime(row[4], '%Y-%m-%d') if row[4] else None
+
+            if start and end and start < end:
+                total = (end - start).days
+                elapsed = (today - start).days
+                progress = min(max(elapsed / total, 0), 1)  # Ограничим в пределах [0, 1]
+            else:
+                progress = 0
+    
             result.append({
                 "id": row[0],
                 "name": row[1],
@@ -211,10 +222,13 @@ def gantt(node_id):
                 "d_start": row[3],
                 "d_end": row[4],
                 "color": row[7],
-                "dependency":row[6]
+                "dependency":row[6],
+                "completed": {
+                 "amount": round(progress, 2)}
             })
 
             
+        print(f"start: {start}, end: {end}, today: {today}, elapsed: {elapsed}, total: {total}, progress: {progress}")
 
         return render_template('gantt.html', gantt_data=result, spec_name=spec_name)
        
