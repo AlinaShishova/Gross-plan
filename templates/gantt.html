@@ -12,9 +12,10 @@
 <style>
   #ganttContainer {
     width: 100%;
-    height: 95vh; /* 100% высоты viewport */
+    height: 100%; /* ИЗМЕНИЛ 70vh;  100% высоты viewport */
     margin: 0;
     padding: 0;
+    overflow: auto; /* Общая полоса прокрутки */
   }
   html, body {
     margin: 0;
@@ -55,6 +56,10 @@
       title: {
         text: specName
       },
+      chart: {
+        animation: false, // Полное отключение анимации
+        height: '45%' // Оставляем место для других элементов
+      },
       xAxis: {
         type: 'datetime',
         labels: {
@@ -68,6 +73,18 @@
         type: 'treegrid',
         uniqueNames: true,
         grid: { enabled: true }
+      },
+      yAxis: { // Вертикальная прокрутка
+        type: 'treegrid',
+        uniqueNames: true,
+        grid: { enabled: true },
+        
+        min: 0,
+        max: Math.min(5, tasks.length - 1), // 5 первых задач
+        scrollbar: {
+          enabled: true,
+          showFull: false
+        }
       },
       navigator: {
         enabled: true,
