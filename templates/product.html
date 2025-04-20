@@ -29,10 +29,10 @@
                 <tr>
                     <td>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" id="toggleCheck-{{ row[1] }}" 
+                            <input class="form-check-input" type="checkbox" id="toggleCheck-{{ row[0] }}" 
                                    {% if row[1] == 1 %}checked{% endif %}
                                    disabled style="cursor: default; opacity: 0.8;">
-                            <label class="form-check-label" for="toggleCheck-{{ row[1] }}"></label>
+                            <label class="form-check-label" for="toggleCheck-{{ row[0] }}"></label>
                         </div>
                     </td>
                     <td>{{ row[2] if row[2] is not none else '' }}</td>
@@ -68,7 +68,8 @@
                         </button>
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-outline-dark btn-delete" 
+                        <button id="delete-{{ row[13] }}"
+                            class="btn btn-sm btn-outline-dark btn-delete" 
                             data-component-id="{{ row[13] }}">
                             <i class="fa-solid fa-minus"></i>
                         </button>  
@@ -126,6 +127,15 @@
     let daId = null;
     let daPath = null;
 
+    document.addEventListener("DOMContentLoaded", function () {
+    const today = new Date().toISOString().split("T")[0]; // Получаем текущую дату в формате YYYY-MM-DD
+
+    document.getElementById("startDate").value = today;
+    document.getElementById("buildDate").value = today;
+    document.getElementById("releaseDate").value = today;
+});
+
+
     function formatDate(dateString) { // странная фигня. почему без timezone  выдает на день раньше. Нужно разобраться. внимательнее далее!!!
         if (!dateString || dateString === "None" || dateString === "null") return '';
         
@@ -141,25 +151,28 @@
     }
 
     function setRowId(button) {
-        componentId = button.getAttribute('data-component-id');
+    // Всегда устанавливаем данные спецификации и dseId
+    specificationId = button.getAttribute('data-specification-id');
+    dseId = button.getAttribute('data-dse-id');
+    daId = button.getAttribute('data-da-index');
+    daPath = button.getAttribute('data-da-path');
+    
+    // Если установлен componentId и даты присутствуют, обновляем поля формы
+    componentId = button.getAttribute('data-component-id');
+    if (componentId && componentId !== "None" && componentId !== "null") {
+        const dateStart = button.getAttribute('data-date-start');
+        const dateEnd = button.getAttribute('data-date-end');
+        const dateAssembling = button.getAttribute('data-date-assembling');
         
-        if (componentId && componentId !== "None" && componentId !== "null") {
-            const dateStart = button.getAttribute('data-date-start');
-            const dateEnd = button.getAttribute('data-date-end');
-            const dateAssembling = button.getAttribute('data-date-assembling');
-            
-            document.getElementById('startDate').value = formatDate(dateStart);
-            document.getElementById('buildDate').value = formatDate(dateAssembling);
-            document.getElementById('releaseDate').value = formatDate(dateEnd);
-        } else {
-            specificationId = button.getAttribute('data-specification-id');
-            dseId = button.getAttribute('data-dse-id');
-            daId = button.getAttribute('data-da-index');
-            daPath = button.getAttribute('data-da-path');
-        }
+        document.getElementById('startDate').value = formatDate(dateStart);
+        document.getElementById('buildDate').value = formatDate(dateAssembling);
+        document.getElementById('releaseDate').value = formatDate(dateEnd);
     }
+}
+
 
     function saveData() {
+    
         const startDateInput = document.getElementById('startDate');
         const buildDateInput = document.getElementById('buildDate');
         const releaseDateInput = document.getElementById('releaseDate');
@@ -182,21 +195,22 @@
             alert("Не выбрана строка!");
             return;
         }
-    
-        const daIdValue = daId === "None" || daId === "null" ? null : parseInt(daId);
-        const daPathValue = daPath === "None" || daPath === "null" ? null : daPath;
-    
+       
         const data = {
             "cube_specification_id": parseInt(specificationId),
-            "dse_id": parseInt(dseId),
-            "date_start": startDate,
-            "date_assembling": buildDate,
-            "date_end": releaseDate,
-            "da_index": daIdValue,
-            "da_path": daPathValue
+            "dse_id":                parseInt(dseId),
+            "date_start":           startDate,
+            "date_assembling":      buildDate,
+            "date_end":             releaseDate,
+            "da_index":             (daId && daId!=="None" && daId!=="null") ? parseInt(daId) : null,
+            "da_path":              (daPath && daPath!=="None" && daPath!=="null") ? daPath : null
         };
-        
-        fetch('/insert_cube_component', {
+
+        // Если componentId задан — добавляем его в нагрузку
+        if (componentId && componentId !== "None" && componentId !== "null") {
+        data.cube_component_id = parseInt(componentId);
+        }
+        fetch('/save_cube_component', {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -214,7 +228,8 @@
             console.error("Ошибка:", error);
             alert("Ошибка при сохранении данных");
         });
-    }
+        }
+    
 
     // Функция для удаления записи
     function deleteComponent(componentId) {
@@ -267,14 +282,7 @@
         });
     });
 
-    document.addEventListener("DOMContentLoaded", function () {
-    const today = new Date().toISOString().split("T")[0]; // Получаем текущую дату в формате YYYY-MM-DD
-
-    document.getElementById("startDate").value = today;
-    document.getElementById("buildDate").value = today;
-    document.getElementById("releaseDate").value = today;
-});
-
+ 
 </script>
 
     

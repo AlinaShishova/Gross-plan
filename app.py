@@ -120,20 +120,31 @@ def product():
 
     return render_template('product.html', results=results)
 
-@app.route('/insert_cube_component', methods=['POST']) # Сохранение позиции cube_components
+@app.route('/save_cube_component', methods=['POST']) # Сохранение позиции cube_components
 @login_required
-def insert_cube_component():
-    # Получаем данные из запроса
-    data = request.json
+def save_cube_component():
 
-    # Проверяем, что все необходимые поля присутствуют
-    required_fields = ["cube_specification_id", "dse_id", "date_start", "date_end", "date_assembling", "da_index", "da_path"]
-    print("Полученные данные:", data)  # Временный лог
-    if not all(field in data for field in required_fields):
-        return jsonify({"status": "error", "message": "Недостаточно данных"}), 400
-    db_oracle.execute_query('insert_cube_component',data)
-    # Если все ок, возвращаем JSON-ответ
-    return jsonify({"status": "success", "message": "Данные успешно добавлены"}), 200
+    try:
+ 
+        data = request.get_json()
+        print("SAVE_PAYLOAD:", data)
+        cube_component_id = data.get("cube_component_id")
+        
+        # Если передан cube_component_id, проверяем, существует ли запись
+        if cube_component_id:
+            existing = db_oracle.execute_query("check_cube_component", {"cube_component_id": cube_component_id})
+            if existing and len(existing) > 0:
+                # Запись существует – выполняем UPDATE
+                db_oracle.execute_query("update_cube_component", data)
+                return jsonify({"success": True, "operation": "update"})
+        else:
+            # Если записи нет (или cube_component_id не задан), выполняем INSERT
+            db_oracle.execute_query("insert_cube_component", data)
+            return jsonify({"success": True, "operation": "insert"})
+    
+    except Exception as e:
+        print(f"Ошибка при сохранении записи: {e}")
+        return jsonify({"success": False, "message": str(e)}), 500
 
 @app.route('/delete_cube_component', methods=['POST'])
 @login_required

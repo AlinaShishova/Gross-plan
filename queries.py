@@ -181,6 +181,28 @@ select d.dm_index,
  order by class_seq, dse_draft_number, dse_name
  """,
  
+ "check_cube_component": """
+    SELECT 1 
+    FROM cube_components 
+    WHERE cube_component_id = :cube_component_id
+"""
+,
+
+"update_cube_component": """
+    UPDATE cube_components
+    SET 
+        cube_specification_id = :cube_specification_id,
+        dse_id = :dse_id,
+        date_start = TO_DATE(:date_start, 'YYYY-MM-DD'),
+        date_assembling = TO_DATE(:date_assembling, 'YYYY-MM-DD'),
+        date_end = TO_DATE(:date_end, 'YYYY-MM-DD'),
+        da_index = :da_index,
+        da_path = :da_path
+    WHERE cube_component_id = :cube_component_id
+"""
+,
+ 
+ 
     "insert_cube_component": """
         INSERT INTO CUBE_COMPONENTS (
             cube_specification_id,
@@ -207,7 +229,21 @@ select d.dm_index,
         WHERE cube_component_id = :component_id
     """
     ,
-    
+#     WITH target AS (
+#   SELECT cube_component_id,
+#          da_path,
+#          cube_specification_id
+#   FROM cube_components
+#   WHERE cube_component_id = :component_id
+# )
+# DELETE FROM cube_components
+# WHERE cube_component_id = (SELECT cube_component_id FROM target)
+#    OR (da_path IS NOT NULL AND da_path LIKE '%' || da_index || '.%')
+#    OR (
+#         (SELECT da_path FROM target) IS NULL 
+#         AND cube_specification_id = (SELECT cube_specification_id FROM target)
+#       );
+
       
     'delete_spec': """
         DELETE FROM CUBE_SPECIFICATION
@@ -220,17 +256,7 @@ select d.dm_index,
         WHERE CUBE_SPECIFICATION_ID = :cube_specification_id
     
     """,
-    
-    # "gantt":"""
-    #     SELECT cc.dse_id, d.dm_name as dse_name, cc.da_index, da.dm_index_where, cc.date_start, cc.date_end, cc.date_assembling
-    #     FROM cube_components cc
-    #     join cube_specification sp 
-    #     on cc.cube_specification_id = sp.cube_specification_id
-    #     join dse_main d
-    #     on cc.dse_id = d.dm_index 
-    #     join dse_assembling da on da.da_index = cc.da_index
-    #     WHERE cc.cube_specification_id  = :node_id 
-    # """
+ 
     
     
 #  Для диаграммы Ганнта
