@@ -175,6 +175,8 @@
                     <th>Начало</th>
                     <th>Примечание</th>
                     <th></th>
+                    <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -212,8 +214,13 @@
                         <a href="{{ url_for('gantt', node_id=row[0], spec_name=row[3]) }}"  
                         class="btn btn-sm btn-outline-dark">
                          <i class="fa-solid fa-chart-gantt"></i>
-                     </a>
-                     
+                        </a> 
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-dark"
+                            data-component-id="{{ row[0] }}">
+                            <i>JOB</i>
+                        </button>
                     </td>
                 </tr>
                 {% endfor %}
