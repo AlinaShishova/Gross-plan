@@ -1,39 +1,34 @@
 {% extends 'base.html' %}
 {% block sub_content %}
 
-<!-- Подключение скриптов Highcharts Gantt -->
 <script src="/static/highcharts/code/highcharts.js"></script>
+<script src="/static/highcharts/code/highcharts-more.js"></script>
 <script src="/static/highcharts/code/modules/gantt.js"></script>
 <script src="/static/highcharts/code/modules/accessibility.js"></script>
-<script src="/static/highcharts/code/modules/exporting.js"></script>
+
+<div style="margin-bottom: 1em;">
+  <button onclick="setZoom(1)">1 день</button>
+  <button onclick="setZoom(7)">1 неделя</button>
+  <button onclick="setZoom(30)">1 месяц</button>
+  <button onclick="setZoom(90)">3 месяца</button>
+  <button onclick="setZoom(365)">1 год</button>
+  <button onclick="setZoom('all')">все</button>
+</div>
+
 
 <div id="ganttContainer"></div>
 
 <style>
   #ganttContainer {
     width: 100%;
-    height: 100%; /* ИЗМЕНИЛ 70vh;  100% высоты viewport */
-    margin: 0;
-    padding: 0;
-    overflow: auto; /* Общая полоса прокрутки */
-  }
-  html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
+    height: 100vh;
   }
 </style>
 
 <script>
-  // Данные диаграммы, переданные с сервера
   const ganttData = {{ gantt_data | tojson }};
-  // Имя спецификации (для заголовка)
   const specName = "{{ spec_name }}";
-  console.log("Полученные данные для диаграммы:", ganttData);
-  
-  // Функция преобразования сырых данных в задачи
+
   function prepareTasks(data) {
     return data.map(task => ({
       id: task.id,
@@ -42,90 +37,64 @@
       start: task.d_start ? Date.parse(task.d_start) : undefined,
       end: task.d_end ? Date.parse(task.d_end) : undefined,
       color: task.color,
-      dependency:task.dependency || undefined,
+      dependency: task.dependency || undefined,
       completed: task.completed || { amount: 0 }
-
-
     }));
   }
-  
-  // Если данные присутствуют, строим диаграмму
-  if (ganttData && ganttData.length > 0) {
-    const tasks = prepareTasks(ganttData);
-    Highcharts.ganttChart('ganttContainer', {
-      title: {
-        text: specName
-      },
-      chart: {
-        animation: false, // Полное отключение анимации
-        height: '45%' // Оставляем место для других элементов
-      },
-      xAxis: {
-        type: 'datetime',
-        labels: {
-          formatter: function () {
-            var weekNum = Highcharts.dateFormat('%W', this.value);
-            return 'Неделя ' + weekNum;
+
+  const tasks = prepareTasks(ganttData);
+  const chart = Highcharts.ganttChart('ganttContainer', {
+    title: {
+      text: specName
+    },
+    chart: {
+      zoomType: 'x'
+    },
+    xAxis: {
+      type: 'datetime',
+      labels: {
+        formatter: function () {
+          const range = this.axis.max - this.axis.min;
+          if (range <= 36 * 60 * 60 * 1000) {
+            return Highcharts.dateFormat('%H:%M', this.value);
+          } else if (range <= 10 * 24 * 60 * 60 * 1000) {
+            return Highcharts.dateFormat('%e %b', this.value);
+          } else {
+            return Highcharts.dateFormat('%b %Y', this.value);
           }
         }
-      },
-      yAxis: {
-        type: 'treegrid',
-        uniqueNames: true,
-        grid: { enabled: true }
-      },
-      yAxis: { // Вертикальная прокрутка
-        type: 'treegrid',
-        uniqueNames: true,
-        grid: { enabled: true },
-        
-        min: 0,
-        max: Math.min(5, tasks.length - 1), // 5 первых задач
-        scrollbar: {
-          enabled: true,
-          showFull: false
-        }
-      },
-      navigator: {
-        enabled: true,
-        liveRedraw: true,
-        series: {
-          type: 'gantt',
-          pointPlacement: 0.5,
-          pointPadding: 0.25,
-          accessibility: { enabled: false }
-        },
-        yAxis: {
-          min: 0,
-          max: 3,
-          reversed: true
-        }
-      },
-      scrollbar: { enabled: true },
-      rangeSelector: { enabled: true, selected: 0 },
-      accessibility: {
-        point: {
-          descriptionFormat: '{yCategory}. Task {completed.amount * 100:.1f}% completed. Start {x:%Y-%m-%d}, end {x2:%Y-%m-%d}.'
-        },
-        series: { descriptionFormat: '{name}' }
-      },
-      lang: {
-        accessibility: {
-          axis: {
-            xAxisDescriptionPlural: 'The chart has a two-part X axis showing time in both week numbers and days.',
-            yAxisDescriptionPlural: 'The chart has one Y axis showing task categories.'
-          }
-        }
-      },
-      
-      series: [{
-        name: 'Составляющие',
-        data: tasks
-      }]
-    });
-  } else {
-    document.getElementById('ganttContainer').innerHTML = "<p>Нет данных для отображения диаграммы</p>";
+      }
+    },
+    navigator: {
+      enabled: true
+    },
+    scrollbar: {
+      enabled: true
+    },
+    series: [{
+      name: 'Составляющие',
+      data: tasks
+    }]
+  });
+
+  function setZoom(days) {
+  if (!tasks.length) return;
+
+  const minDate = Math.min(...tasks.map(t => t.start || Infinity));
+  const maxDate = Math.max(...tasks.map(t => t.end || -Infinity));
+
+  if (days === 'all') {
+    chart.xAxis[0].setExtremes(minDate, maxDate);
+    return;
   }
+
+  const center = (minDate + maxDate) / 2;
+  const halfSpan = (days * 24 * 60 * 60 * 1000) / 2;
+  chart.xAxis[0].setExtremes(center - halfSpan, center + halfSpan);
+}
+
 </script>
+
+
 
 {% endblock %}
