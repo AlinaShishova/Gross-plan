@@ -258,5 +258,22 @@ def show_heatmap():
     return render_template("heatmap.html", heatmap_html=heatmap_html)
 # ===================================================================
 
+# Список рабочих центров
+@app.route("/work_center/")
+def work_center():
+   results = db_oracle.execute_query("work_center")
+#    print(f"Результаты: {results}") 
+   return render_template('work_center.html', results=results)
+
+# Состав рабочего центра
+@app.route("/wc_composition/") #<int:wc_id>
+def wc_composition():
+    wc_id = request.args.get('wc_id')
+    results = db_oracle.execute_query("wc_positions",{'wc_id': wc_id})
+#    print(f"Результаты: {results}") 
+    return render_template('wc_composition.html', results=results)
+
+# wc_id
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

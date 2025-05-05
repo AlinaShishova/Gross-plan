@@ -315,6 +315,40 @@ FROM cube_components cc
 WHERE cc.cube_specification_id = :node_id
 
 
-    """
-     
+    """,
+# Вывод списка рабочих центров
+"work_center": """
+SELECT 
+    m.wc_id,
+    (SELECT w.short_name FROM workshop w WHERE w.ind = m.dep_id) AS dep_name,
+    m.name,
+    (SELECT t.name FROM tec_types t WHERE t.ind = m.tech_type_id) AS tec_name,
+    m.class_num_ws,
+    m.class_num_all,
+    m.model_name,
+    (SELECT COUNT(p.wcp_id) FROM wc_positions p WHERE p.wc_id = m.wc_id) AS num_comp
+FROM 
+    wc_main m
+WHERE 
+    m.is_delete = 0
+ORDER BY
+    dep_name,
+    tec_name,
+    m.name
+""",
+
+"wc_positions": """
+SELECT 
+    p.wcp_id,
+    p.wc_id,
+    p.worker_id,
+    w.name AS worker_name,
+    w.clock_number AS worker_number
+FROM 
+    wc_positions p
+LEFT JOIN 
+    workers w ON w.ind = p.worker_id
+WHERE 
+    p.wc_id = :wc_id
+"""
 }

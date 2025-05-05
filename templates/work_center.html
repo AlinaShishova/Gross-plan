@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block sub_content %}
+
+<div class="container my-4">
+    <div class="text-center">
+        <h1 class="h3 mb-5 fw-normal">Список рабочих центров</h1>
+    </div>
+ 
+    {% if results %}
+    <div class="table-responsive" style="max-width: 100%; margin: 0 auto;">
+        <table class="table table-striped table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col">Цех</th>
+                    <th scope="col">Название</th>
+                    <th scope="col">Тип техники</th>
+                    <th scope="col">Класс (цех, ТП)</th>
+                    <th scope="col">Класс (общий)</th>
+                    <th scope='col'>Состав (ед.)<th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in results %}
+                <tr>
+                    <td>{{ row[1] }}</td>
+                    <td><a href="{{url_for('wc_composition', wc_id = row[0])}}" class = "text-dark">{{ row[2] }}</a></td>
+                    <td>{{ row[3] }}</td>
+                    <td>{{ row[4] }}</td>
+                    <td>{{ row[5] }}</td>
+                    <td>{{ row[7] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-4" role="alert">
+        Нет данных для отображения
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
