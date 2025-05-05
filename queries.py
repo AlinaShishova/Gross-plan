@@ -350,5 +350,17 @@ LEFT JOIN
     workers w ON w.ind = p.worker_id
 WHERE 
     p.wc_id = :wc_id
+""",
+
+"workshop_dp": """
+SELECT 
+    w.ind, 
+    w.short_name 
+FROM 
+    workshop w 
+WHERE 
+    w.ind IN (2, 3, 4, 12, 14, 29) 
+ORDER BY 
+    w.short_name
 """
 }
