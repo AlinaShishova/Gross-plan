@@ -261,9 +261,13 @@ def show_heatmap():
 # Список рабочих центров
 @app.route("/work_center/")
 def work_center():
-   results = db_oracle.execute_query("work_center")
+    workshops = db_oracle.execute_query("workshop_dp")
+    tech_types = db_oracle.execute_query("main_spec_type")
+    print(workshops)
+    print(tech_types)
+    results = db_oracle.execute_query("work_center")
 #    print(f"Результаты: {results}") 
-   return render_template('work_center.html', results=results)
+    return render_template('work_center.html', results=results, workshops=workshops, tech_types=tech_types)
 
 # Состав рабочего центра
 @app.route("/wc_composition/") #<int:wc_id>
@@ -273,7 +277,62 @@ def wc_composition():
 #    print(f"Результаты: {results}") 
     return render_template('wc_composition.html', results=results)
 
-# wc_id
+# Добавление рабочего центра
+@app.route('/add_work_center', methods=['POST'])
+def add_work_center():
+    try:
+        # Получение данных из формы
+        dep_id = request.form.get('dep_id')
+        name = request.form.get('name')
+        tech_type_id = request.form.get('tech_type_id')
+        class_num_ws = request.form.get('class_num_ws')
+        class_num_all = request.form.get('class_num_all')
+        ps_ind = request.form.get('ps_ind')
+        
+        print(name)
+        # Создание новой записи
+        # new_wc = WcMain(
+        #     dep_id=dep_id,
+        #     name=name,
+        #     tech_type_id=tech_type_id,
+        #     class_num_ws=class_num_ws,
+        #     class_num_all=class_num_all,
+        #     is_delete=0,
+        #     # Другие необходимые поля
+        # )
+        
+        # db.session.add(new_wc)
+        # db.session.commit()
+        
+        # flash('Рабочий центр успешно добавлен', 'success')
+        # return redirect(url_for('spec_select', pay_unit_id=ps_ind))
+    
+    except Exception as e:
+        print(f"Ошибка добавления рабочего центра: {e}")
+        
+
+# Редактирование рабочего центра
+@app.route('/edit_work_center', methods=['POST'])
+def edit_work_center():
+    try:
+        wc_id = request.form.get('wc_id')
+        # wc = WcMain.query.get_or_404(wc_id)
+        
+        # # Обновление данных
+        # wc.dep_id = request.form.get('dep_id')
+        # wc.name = request.form.get('name')
+        # wc.tech_type_id = request.form.get('tech_type_id')
+        # wc.class_num_ws = request.form.get('class_num_ws')
+        # wc.class_num_all = request.form.get('class_num_all')
+        
+        # db.session.commit()
+        
+        # flash('Рабочий центр успешно обновлен', 'success')
+        # return redirect(url_for('spec_select', pay_unit_id=request.form.get('ps_ind')))
+    
+    except Exception as e:
+        print(f"Ошибка добавления рабочего центра: {e}")
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
