@@ -263,10 +263,7 @@ def show_heatmap():
 def work_center():
     workshops = db_oracle.execute_query("workshop_dp")
     tech_types = db_oracle.execute_query("main_spec_type")
-    print(workshops)
-    print(tech_types)
     results = db_oracle.execute_query("work_center")
-#    print(f"Результаты: {results}") 
     return render_template('work_center.html', results=results, workshops=workshops, tech_types=tech_types)
 
 # Состав рабочего центра
@@ -289,23 +286,6 @@ def add_work_center():
         class_num_all = request.form.get('class_num_all')
         ps_ind = request.form.get('ps_ind')
         
-        print(name)
-        # Создание новой записи
-        # new_wc = WcMain(
-        #     dep_id=dep_id,
-        #     name=name,
-        #     tech_type_id=tech_type_id,
-        #     class_num_ws=class_num_ws,
-        #     class_num_all=class_num_all,
-        #     is_delete=0,
-        #     # Другие необходимые поля
-        # )
-        
-        # db.session.add(new_wc)
-        # db.session.commit()
-        
-        # flash('Рабочий центр успешно добавлен', 'success')
-        # return redirect(url_for('spec_select', pay_unit_id=ps_ind))
     
     except Exception as e:
         print(f"Ошибка добавления рабочего центра: {e}")
@@ -316,23 +296,13 @@ def add_work_center():
 def edit_work_center():
     try:
         wc_id = request.form.get('wc_id')
-        # wc = WcMain.query.get_or_404(wc_id)
-        
-        # # Обновление данных
-        # wc.dep_id = request.form.get('dep_id')
-        # wc.name = request.form.get('name')
-        # wc.tech_type_id = request.form.get('tech_type_id')
-        # wc.class_num_ws = request.form.get('class_num_ws')
-        # wc.class_num_all = request.form.get('class_num_all')
-        
-        # db.session.commit()
-        
-        # flash('Рабочий центр успешно обновлен', 'success')
-        # return redirect(url_for('spec_select', pay_unit_id=request.form.get('ps_ind')))
     
     except Exception as e:
         print(f"Ошибка добавления рабочего центра: {e}")
-
+# Удаление рабочего центра
+@app.route('/delete_work_center', methods=['POST'])
+def delete_work_center():
+    wc_id = request.form.get('wc_id')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

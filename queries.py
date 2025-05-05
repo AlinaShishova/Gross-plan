@@ -330,7 +330,7 @@ SELECT
 FROM 
     wc_main m
 WHERE 
-    m.is_delete = 0
+    m.is_deleted = 0
 ORDER BY
     dep_name,
     tec_name,
@@ -348,7 +348,8 @@ FROM
     wc_positions p
 LEFT JOIN 
     workers w ON w.ind = p.worker_id
-WHERE 
+WHERE
+    p.is_deleted = 0 AND
     p.wc_id = :wc_id
 """,
 
