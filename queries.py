@@ -336,7 +336,7 @@ ORDER BY
     tec_name,
     m.name
 """,
-
+# Состав рабочего центра
 "wc_positions": """
 SELECT 
     p.wcp_id,
@@ -352,6 +352,7 @@ WHERE
     p.wc_id = :wc_id
 """,
 
+# Список цехов директора производства
 "workshop_dp": """
 SELECT 
     w.ind, 
@@ -362,5 +363,16 @@ WHERE
     w.ind IN (2, 3, 4, 12, 14, 29) 
 ORDER BY 
     w.short_name
+""",
+# Основные типы техпроцессов
+"main_spec_type": """
+SELECT 
+    t.ind,
+    t.short_name,
+    t.*
+FROM 
+    tec_types t
+WHERE 
+    t.ind NOT IN (0, 6, 7, 10, 12)
 """
 }
