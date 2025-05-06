@@ -267,10 +267,11 @@ def work_center():
     return render_template('work_center.html', results=results, workshops=workshops, tech_types=tech_types)
 
 # Состав рабочего центра
-@app.route("/wc_composition/") #<int:wc_id>
+@app.route("/wc_composition/") 
 def wc_composition():
     wc_id = request.args.get('wc_id')
-    results = db_oracle.execute_query("wc_positions",{'wc_id': wc_id})
+    dep_id = request.args.get('dep_id')
+    results = db_oracle.execute_query("wc_pos",{'wc_id': wc_id, 'dep_id': dep_id})
 #    print(f"Результаты: {results}") 
     return render_template('wc_composition.html', results=results)
 

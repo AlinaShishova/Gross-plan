@@ -258,7 +258,6 @@ select d.dm_index,
     """,
  
     
-    
 #  Для диаграммы Ганнта
 "gantt": """
     SELECT 
@@ -316,74 +315,79 @@ WHERE cc.cube_specification_id = :node_id
 
 
     """,
+
 # Вывод списка рабочих центров
 "work_center": """
-SELECT 
-    m.wc_id,
-    (SELECT w.short_name FROM workshop w WHERE w.ind = m.dep_id) AS dep_name,
-    m.name,
-    (SELECT t.name FROM tec_types t WHERE t.ind = m.tech_type_id) AS tec_name,
-    m.class_num_ws,
-    m.class_num_all,
-    m.model_name,
-    (SELECT COUNT(p.wcp_id) FROM wc_positions p WHERE p.wc_id = m.wc_id) AS num_comp
-FROM 
-    wc_main m
-WHERE 
-    m.is_deleted = 0
-ORDER BY
-    dep_name,
-    tec_name,
-    m.name
+    SELECT 
+        m.wc_id,
+        (SELECT w.short_name FROM workshop w WHERE w.ind = m.dep_id) AS dep_name,
+        m.name,
+        (SELECT t.name FROM tec_types t WHERE t.ind = m.tech_type_id) AS tec_name,
+        m.class_num_ws,
+        m.class_num_all,
+        m.model_name,
+        (SELECT COUNT(p.wcp_id) FROM wc_positions p WHERE p.wc_id = m.wc_id) AS num_comp,
+        m.dep_id
+    FROM 
+        wc_main m
+    WHERE 
+        m.is_deleted = 0
+    ORDER BY
+        dep_name,
+        tec_name,
+        m.name
 """,
+
 # Состав рабочего центра
 "wc_positions": """
-SELECT 
-    p.wcp_id,
-    p.wc_id,
-    p.worker_id,
-    w.name AS worker_name,
-    w.clock_number AS worker_number
-FROM 
-    wc_positions p
-LEFT JOIN 
-    workers w ON w.ind = p.worker_id
-WHERE
-    p.is_deleted = 0 AND
-    p.wc_id = :wc_id
+    SELECT 
+        p.wcp_id,
+        p.wc_id,
+        p.worker_id,
+        w.name AS worker_name,
+        w.clock_number AS worker_number
+    FROM 
+        wc_positions p
+    LEFT JOIN 
+        workers w ON w.ind = p.worker_id
+    WHERE
+        p.is_deleted = 0 AND
+        p.wc_id = :wc_id
 """,
 
 # Список цехов директора производства
 "workshop_dp": """
-SELECT 
-    w.ind, 
-    w.short_name 
-FROM 
-    workshop w 
-WHERE 
-    w.ind IN (2, 3, 4, 12, 14, 29) 
-ORDER BY 
-    w.short_name
+    SELECT 
+        w.ind, 
+        w.short_name 
+    FROM 
+        workshop w 
+    WHERE 
+        w.ind IN (2, 3, 4, 12, 14, 29) 
+    ORDER BY 
+        w.short_name
 """,
+
 # Основные типы техпроцессов
 "main_spec_type": """
-SELECT 
-    t.ind,
-    t.short_name,
-    t.name,
-    t.*
-FROM 
-    tec_types t
-WHERE 
-    t.ind NOT IN (0, 6, 7, 10, 12)
+    SELECT 
+        t.ind,
+        t.short_name,
+        t.name,
+        t.*
+    FROM 
+        tec_types t
+    WHERE 
+        t.ind NOT IN (0, 6, 7, 10, 12)
 """,
+
 # Пометка на удаление рабочего центра
 "delete_wc": """
-        UPDATE wc_main 
-        SET is_deleted = 1
-        WHERE wc_id = :wc_id
-    
-    """,
+    UPDATE wc_main 
+    SET is_deleted = 1
+    WHERE wc_id = :wc_id
+""",
+
 # Обновление рабочего центра 
 "update_wc": """
     UPDATE WC_MAIN
@@ -396,6 +400,7 @@ WHERE
     WHERE 
         wc_id = :wc_id
 """,
+
 # Создание нового рабочего центра
 "insert_wc": """
     INSERT INTO WC_MAIN (
@@ -411,5 +416,37 @@ WHERE
         :class_num_all,
         :tech_type_id
     )
+""",
+
+# Список бригад/рабочих цеха с чеком для выбора в состав РЦ
+"wc_pos": """
+SELECT 
+    w.ind,
+    COUNT(CASE WHEN pp.wc_id = :wc_id THEN 1 END) AS check_val,
+    w.clock_number,
+    w.name,
+    s.name AS specialty,
+    m.name AS center_name
+FROM 
+    workers w
+LEFT JOIN 
+    workers_specialty s ON s.ind = w.specialty_id
+LEFT JOIN 
+    wc_positions p ON p.worker_id = w.ind
+LEFT JOIN 
+    wc_main m ON m.wc_id = p.wc_id
+LEFT JOIN 
+    wc_positions pp ON pp.worker_id = w.ind AND pp.wc_id = :wc_id
+WHERE 
+    w.workshop = :dep_id
+    AND w.del = 0
+    AND w.brigade IS NULL
+GROUP BY 
+    w.ind, w.clock_number, w.name, s.name, m.name, w.is_brigade
+ORDER BY
+    w.is_brigade DESC,
+    check_val DESC,
+    specialty, 
+    w.name
 """
 }
