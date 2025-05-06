@@ -110,7 +110,7 @@
                         <select class="form-select" id="tech_type_id" name="tech_type_id" required>
                             <option value="" selected disabled>Выберите тип ТП</option>
                             {% for tech_type in tech_types %}
-                            <option value="{{ tech_type[0] }}">{{ tech_type[1] }} ({{ tech_type[3] }})</option>
+                            <option value="{{ tech_type[0] }}">{{ tech_type[2] }} </option>
                             {% endfor %}
                         </select>
                     </div>

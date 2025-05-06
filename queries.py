@@ -370,10 +370,46 @@ ORDER BY
 SELECT 
     t.ind,
     t.short_name,
+    t.name,
     t.*
 FROM 
     tec_types t
 WHERE 
     t.ind NOT IN (0, 6, 7, 10, 12)
+""",
+# Пометка на удаление рабочего центра
+"delete_wc": """
+        UPDATE wc_main 
+        SET is_deleted = 1
+        WHERE wc_id = :wc_id
+    
+    """,
+# Обновление рабочего центра 
+"update_wc": """
+    UPDATE WC_MAIN
+    SET 
+        name = :name,
+        dep_id = :dep_id,
+        class_num_ws = :class_num_ws,
+        class_num_all = :class_num_all,
+        tech_type_id = :tech_type_id
+    WHERE 
+        wc_id = :wc_id
+""",
+# Создание нового рабочего центра
+"insert_wc": """
+    INSERT INTO WC_MAIN (
+        name,
+        dep_id,
+        class_num_ws,
+        class_num_all,
+        tech_type_id
+    ) VALUES (
+        :name,
+        :dep_id,
+        :class_num_ws,
+        :class_num_all,
+        :tech_type_id
+    )
 """
 }
