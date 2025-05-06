@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, flash, url_for
 from flask_bootstrap import Bootstrap5
 from config import Config
 from datetime import datetime
@@ -257,6 +257,89 @@ def show_heatmap():
     heatmap_html = generate_heatmap()
     return render_template("heatmap.html", heatmap_html=heatmap_html)
 # ===================================================================
+
+# Список рабочих центров
+@app.route("/work_center/")
+def work_center():
+    workshops = db_oracle.execute_query("workshop_dp")
+    tech_types = db_oracle.execute_query("main_spec_type")
+    results = db_oracle.execute_query("work_center")
+    return render_template('work_center.html', results=results, workshops=workshops, tech_types=tech_types)
+
+# Состав рабочего центра
+@app.route("/wc_composition/") #<int:wc_id>
+def wc_composition():
+    wc_id = request.args.get('wc_id')
+    results = db_oracle.execute_query("wc_positions",{'wc_id': wc_id})
+#    print(f"Результаты: {results}") 
+    return render_template('wc_composition.html', results=results)
+
+# Добавление рабочего центра
+@app.route('/add_work_center', methods=['POST'])
+def add_work_center():
+    try:
+        # Получение данных из формы
+        dep_id = request.form.get('dep_id')
+        name = request.form.get('name')
+        tech_type_id = request.form.get('tech_type_id')
+        class_num_ws = request.form.get('class_num_ws')
+        class_num_all = request.form.get('class_num_all')
+        
+        # параметры для запроса
+        params = {
+        'name': request.form['name'],
+        'dep_id': request.form['dep_id'],
+        'class_num_ws': request.form['class_num_ws'],
+        'class_num_all': request.form['class_num_all'],
+        'tech_type_id': request.form['tech_type_id']
+        }
+        
+        # Выполнение запроса
+        db_oracle.execute_query("insert_wc", params)
+    
+    except Exception as e:
+        flash(f"Ошибка добавления рабочего центра: {e}")
+        
+    return redirect(url_for('work_center'))  # к списку
+
+# Редактирование рабочего центра
+@app.route('/edit_work_center', methods=['POST'])
+def edit_work_center():
+    try:
+         # Получение данных из формы
+        wc_id = request.form.get('wc_id')
+        dep_id = request.form.get('dep_id')
+        name = request.form.get('name')
+        tech_type_id = request.form.get('tech_type_id')
+        class_num_ws = request.form.get('class_num_ws')
+        class_num_all = request.form.get('class_num_all')
+        
+        # Параметры для запроса
+        params = {
+        'wc_id': wc_id,
+        'name': name,
+        'dep_id': dep_id,
+        'class_num_ws': class_num_ws,
+        'class_num_all': class_num_all,
+        'tech_type_id': tech_type_id
+        }
+        db_oracle.execute_query("update_wc", params)
+    
+    except Exception as e:
+        flash(f"Ошибка редактирования рабочего центра: {e}")
+    return redirect(url_for('work_center'))  # к списку
+
+# Удаление рабочего центра (пометка на удаление)
+@app.route('/delete_work_center', methods=['POST'])
+def delete_work_center():
+    wc_id = request.form.get('wc_id')
+    try:
+        db_oracle.execute_query("delete_wc", {"wc_id": wc_id})
+        # flash('Рабочий центр успешно удален', 'success')
+    except Exception as e:
+        flash(f'Ошибка при удалении: {str(e)}', 'error')
+    
+    return redirect(url_for('work_center'))  # к списку
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

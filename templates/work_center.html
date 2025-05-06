@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% block sub_content %}
+
+<div class="container my-4">
+    <div class="text-center">
+        <h1 class="h3 mb-5 fw-normal">Список рабочих центров</h1>
+    </div>
+
+    <div class="d-flex justify-content-center justify-content-md-start gap-3 flex-wrap mt-5">
+        <button type="button" 
+                class="btn btn-outline-dark" 
+                data-bs-toggle="modal" 
+                data-bs-target="#wcModal"
+                onclick="prepareAddForm()"
+                aria-label="Добавить рабочий центр">
+            <i class="fa-solid fa-plus"></i> Добавить
+        </button>
+    </div>
+      
+    <div class="row mt-5"> 
+        {% if results %}
+        <div class="table-responsive" style="max-width: 100%; margin: 0 auto;">
+            <table class="table table-striped table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">Цех</th>
+                        <th scope="col">Название</th>
+                        <th scope="col">Тип ТП</th>
+                        <th scope="col">Класс (цех, ТП)</th>
+                        <th scope="col">Класс (общий)</th>
+                        <th scope='col'>Состав (ед.)</th>
+                        <th scope='col'>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in results %}
+                    <tr>
+                        <td>{{ row[1] }}</td>
+                        <td><a href="{{url_for('wc_composition', wc_id = row[0])}}" class="text-dark">{{ row[2] }}</a></td>
+                        <td>{{ row[3] }}</td>
+                        <td>{{ row[4] }}</td>
+                        <td>{{ row[5] }}</td>
+                        <td>{{ row[7] }}</td>
+                        <td>
+                            <div class="btn-group" role="group" aria-label="Действия">
+                                <button id="edit-{{ row[0] }}"
+                                        class="btn btn-sm btn-outline-dark" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#wcModal"
+                                        onclick="prepareEditForm(
+                                            '{{ row[0] }}',
+                                            '{{ row[1] }}',
+                                            '{{ row[2] }}',
+                                            '{{ row[3] }}',
+                                            '{{ row[4] }}',
+                                            '{{ row[5] }}'
+                                        )">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button id="delete-{{ row[0] }}"
+                                        class="btn btn-sm btn-outline-dark btn-delete" 
+                                        onclick="return confirmDelete('{{ row[0] }}')">
+                                    <i class="fa-solid fa-minus"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info mt-4" role="alert">
+            Нет данных для отображения
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Модальное окно -->
+<div class="modal fade" id="wcModal" tabindex="-1" aria-labelledby="wcModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="wcModalLabel">Добавить рабочий центр</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="wcForm" method="POST" action="">
+                <div class="modal-body">
+                    <input type="hidden" name="ps_ind" value="{{ ps_ind }}">
+                    <input type="hidden" id="wc_id" name="wc_id" value="">
+                    
+                    <div class="mb-3">
+                        <label for="dep_id" class="form-label">Цех</label>
+                        <select class="form-select" id="dep_id" name="dep_id" required>
+                            <option value="" selected disabled>Выберите цех</option>
+                            {% for workshop in workshops %}
+                            <option value="{{ workshop[0] }}">{{ workshop[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Название</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="tech_type_id" class="form-label">Тип ТП</label>
+                        <select class="form-select" id="tech_type_id" name="tech_type_id" required>
+                            <option value="" selected disabled>Выберите тип ТП</option>
+                            {% for tech_type in tech_types %}
+                            <option value="{{ tech_type[0] }}">{{ tech_type[2] }} </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="class_num_ws" class="form-label">Класс (цех, ТП)</label>
+                        <input type="number" class="form-control" id="class_num_ws" name="class_num_ws" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="class_num_all" class="form-label">Класс (общий)</label>
+                        <input type="number" class="form-control" id="class_num_all" name="class_num_all" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function prepareAddForm() {
+    document.getElementById('wcModalLabel').textContent = 'Добавить рабочий центр';
+    document.getElementById('wcForm').action = "{{ url_for('add_work_center') }}";
+    document.getElementById('wc_id').value = '';
+    document.getElementById('dep_id').value = '';
+    document.getElementById('name').value = '';
+    document.getElementById('tech_type_id').value = '';
+    document.getElementById('class_num_ws').value = '';
+    document.getElementById('class_num_all').value = '';
+}
+
+function prepareEditForm(wc_id, dep_name, name, tec_name, class_num_ws, class_num_all) {
+    document.getElementById('wcModalLabel').textContent = 'Редактировать рабочий центр';
+    document.getElementById('wcForm').action = "{{ url_for('edit_work_center') }}";
+    document.getElementById('wc_id').value = wc_id;
+    
+    const depSelect = document.getElementById('dep_id');
+    for (let i = 0; i < depSelect.options.length; i++) {
+        if (depSelect.options[i].text === dep_name) {
+            depSelect.value = depSelect.options[i].value;
+            break;
+        }
+    }
+    
+    document.getElementById('name').value = name;
+    
+    const techTypeSelect = document.getElementById('tech_type_id');
+    for (let i = 0; i < techTypeSelect.options.length; i++) {
+        if (techTypeSelect.options[i].text.startsWith(tec_name)) {
+            techTypeSelect.value = techTypeSelect.options[i].value;
+            break;
+        }
+    }
+    
+    document.getElementById('class_num_ws').value = class_num_ws;
+    document.getElementById('class_num_all').value = class_num_all;
+}
+
+function confirmDelete(wc_id) {
+    if (!confirm('Вы уверены, что хотите удалить запись?')) {
+        return false;
+    }
+    
+    // Создаем форму для отправки запроса на удаление
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = "{{ url_for('delete_work_center') }}";
+     
+    // Добавляем ID рабочего центра
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'wc_id';
+    input.value = wc_id;
+    form.appendChild(input);
+    
+    // Добавляем форму в документ и отправляем
+    document.body.appendChild(form);
+    form.submit();
+    
+    return true;
+}
+</script>
+
+{% endblock %}

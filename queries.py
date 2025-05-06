@@ -315,6 +315,101 @@ FROM cube_components cc
 WHERE cc.cube_specification_id = :node_id
 
 
-    """
-     
+    """,
+# Вывод списка рабочих центров
+"work_center": """
+SELECT 
+    m.wc_id,
+    (SELECT w.short_name FROM workshop w WHERE w.ind = m.dep_id) AS dep_name,
+    m.name,
+    (SELECT t.name FROM tec_types t WHERE t.ind = m.tech_type_id) AS tec_name,
+    m.class_num_ws,
+    m.class_num_all,
+    m.model_name,
+    (SELECT COUNT(p.wcp_id) FROM wc_positions p WHERE p.wc_id = m.wc_id) AS num_comp
+FROM 
+    wc_main m
+WHERE 
+    m.is_deleted = 0
+ORDER BY
+    dep_name,
+    tec_name,
+    m.name
+""",
+# Состав рабочего центра
+"wc_positions": """
+SELECT 
+    p.wcp_id,
+    p.wc_id,
+    p.worker_id,
+    w.name AS worker_name,
+    w.clock_number AS worker_number
+FROM 
+    wc_positions p
+LEFT JOIN 
+    workers w ON w.ind = p.worker_id
+WHERE
+    p.is_deleted = 0 AND
+    p.wc_id = :wc_id
+""",
+
+# Список цехов директора производства
+"workshop_dp": """
+SELECT 
+    w.ind, 
+    w.short_name 
+FROM 
+    workshop w 
+WHERE 
+    w.ind IN (2, 3, 4, 12, 14, 29) 
+ORDER BY 
+    w.short_name
+""",
+# Основные типы техпроцессов
+"main_spec_type": """
+SELECT 
+    t.ind,
+    t.short_name,
+    t.name,
+    t.*
+FROM 
+    tec_types t
+WHERE 
+    t.ind NOT IN (0, 6, 7, 10, 12)
+""",
+# Пометка на удаление рабочего центра
+"delete_wc": """
+        UPDATE wc_main 
+        SET is_deleted = 1
+        WHERE wc_id = :wc_id
+    
+    """,
+# Обновление рабочего центра 
+"update_wc": """
+    UPDATE WC_MAIN
+    SET 
+        name = :name,
+        dep_id = :dep_id,
+        class_num_ws = :class_num_ws,
+        class_num_all = :class_num_all,
+        tech_type_id = :tech_type_id
+    WHERE 
+        wc_id = :wc_id
+""",
+# Создание нового рабочего центра
+"insert_wc": """
+    INSERT INTO WC_MAIN (
+        name,
+        dep_id,
+        class_num_ws,
+        class_num_all,
+        tech_type_id
+    ) VALUES (
+        :name,
+        :dep_id,
+        :class_num_ws,
+        :class_num_all,
+        :tech_type_id
+    )
+"""
 }
