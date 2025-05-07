@@ -338,7 +338,7 @@ WHERE cc.cube_specification_id = :node_id
         m.name
 """,
 
-# Состав рабочего центра
+# Состав рабочего центра старая версия
 "wc_positions": """
     SELECT 
         p.wcp_id,
@@ -448,5 +448,15 @@ ORDER BY
     check_val DESC,
     specialty, 
     w.name
+""",
+
+# Удаление рабочего из РЦ
+"del_workers_wc": """
+DELETE FROM wc_positions WHERE worker_id = :worker_id
+""",
+
+# Добавление рабочего в РЦ
+"add_worker_wc": """
+INSERT INTO wc_positions (wc_id, worker_id) VALUES (:wc_id, :worker_id)
 """
 }

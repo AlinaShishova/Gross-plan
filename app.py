@@ -349,5 +349,50 @@ def delete_work_center():
     
     return redirect(url_for('work_center'))  # к списку
 
+# Добавление рабочего/бригады в РЦ
+@app.route('/add_worker_to_wc', methods=['POST'])
+@login_required
+def add_worker_to_wc():
+    worker_id = request.form.get('worker_id')
+    wc_id = request.form.get('wc_id')
+    dep_id = request.form.get('dep_id')
+    print(worker_id)
+    print(wc_id)
+    try:
+        # Удаление рабочего из старого РЦ
+        print(worker_id)
+        print(wc_id)
+        db_oracle.execute_query("del_workers_wc", {"worker_id": worker_id})
+        
+        # Добавление рабочего в РЦ
+        db_oracle.execute_query("add_worker_wc", {"wc_id": wc_id, "worker_id": worker_id})
+        flash('Рабочий успешно добавлен', 'success')
+        
+    except Exception as e:
+        flash(f'Ошибка при добавлении рабочего: {str(e)}', 'danger')
+    
+    return redirect(url_for('wc_composition', wc_id=wc_id, dep_id=dep_id))
+
+# Удаление рабочего/бригады из РЦ
+@app.route('/remove_worker_from_wc', methods=['POST'])
+@login_required
+def remove_worker_from_wc():
+    # Получение данных из формы
+    worker_id = request.form.get('worker_id')
+    wc_id = request.form.get('wc_id')
+    dep_id = request.form.get('dep_id')
+    
+    try:    
+        # Удаление рабочего из РЦ
+        db_oracle.execute_query("del_workers_wc", {"worker_id": worker_id})
+        
+        flash('Рабочий успешно удален', 'success')
+        
+    except Exception as e:
+        flash(f'Ошибка при удалении рабочего: {str(e)}', 'danger')
+    
+    return redirect(url_for('wc_composition', wc_id=wc_id, dep_id=dep_id))
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
