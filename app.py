@@ -208,6 +208,7 @@ def update_spec_date():
 
 
 @app.route('/gantt/<int:node_id>')
+@login_required
 def gantt(node_id):
     try:
         spec_name = request.args.get('spec_name', default='Без названия')
@@ -253,6 +254,7 @@ def gantt(node_id):
 # ===================================================================
 from chart_generator import generate_heatmap
 @app.route("/heatmap/")
+@login_required
 def show_heatmap():
     heatmap_html = generate_heatmap()
     return render_template("heatmap.html", heatmap_html=heatmap_html)
@@ -260,6 +262,7 @@ def show_heatmap():
 
 # Список рабочих центров
 @app.route("/work_center/")
+@login_required
 def work_center():
     workshops = db_oracle.execute_query("workshop_dp")
     tech_types = db_oracle.execute_query("main_spec_type")
@@ -268,6 +271,7 @@ def work_center():
 
 # Состав рабочего центра
 @app.route("/wc_composition/") 
+@login_required
 def wc_composition():
     wc_id = request.args.get('wc_id')
     dep_id = request.args.get('dep_id')
@@ -277,6 +281,7 @@ def wc_composition():
 
 # Добавление рабочего центра
 @app.route('/add_work_center', methods=['POST'])
+@login_required
 def add_work_center():
     try:
         # Получение данных из формы
@@ -305,6 +310,7 @@ def add_work_center():
 
 # Редактирование рабочего центра
 @app.route('/edit_work_center', methods=['POST'])
+@login_required
 def edit_work_center():
     try:
          # Получение данных из формы
@@ -332,6 +338,7 @@ def edit_work_center():
 
 # Удаление рабочего центра (пометка на удаление)
 @app.route('/delete_work_center', methods=['POST'])
+@login_required
 def delete_work_center():
     wc_id = request.form.get('wc_id')
     try:
