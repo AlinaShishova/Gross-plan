@@ -333,9 +333,11 @@ WHERE cc.cube_specification_id = :node_id
     WHERE 
         m.is_deleted = 0
     ORDER BY
-        dep_name,
-        tec_name,
-        m.name
+        m.class_num_ws,
+        m.class_num_all
+        --dep_name,
+        --tec_name,
+        --m.name
 """,
 
 # Состав рабочего центра старая версия
