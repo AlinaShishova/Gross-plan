@@ -446,9 +446,9 @@ WHERE
 GROUP BY 
     w.ind, w.clock_number, w.name, s.name, m.name, w.is_brigade
 ORDER BY
-    w.is_brigade DESC,
     check_val DESC,
-    specialty, 
+    specialty,
+    w.is_brigade DESC,
     w.name
 """,
 

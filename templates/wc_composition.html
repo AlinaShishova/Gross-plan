@@ -5,7 +5,13 @@
     <div class="text-center">
         <h1 class="h3 mb-5 fw-normal">Состав рабочего центра</h1>
     </div>
-      
+    
+    <a href="{{ url_for('work_center') }}" 
+        class="btn btn-outline-dark" 
+        aria-label="Перейти к списку рабочих центров">
+        <i class="fa-solid fa-arrow-left"></i> К списку РЦ
+    </a> 
+    
     <div class="row mt-5"> 
         {% if results %}
         <form id="workersForm" method="POST">
@@ -31,6 +37,7 @@
                                             class="form-check-input worker-checkbox" 
                                             name="selected_workers" 
                                             value="{{ row[0] }}"
+                                            data-wc_id="{{ row[6] }}"  
                                             {% if row[1] == 1 %}checked{% endif %}
                                             onchange="handleCheckboxChange(this)">
                                 </div>
@@ -38,7 +45,7 @@
                             <td>{{ row[2] }}</td>
                             <td>{{ row[3] }}</td>
                             <td>{{ row[4] }}</td>
-                            <td>{{ row[5] }}</td>
+                            <td>{{ row[5] if row[5] is not none else '' }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -55,12 +62,13 @@
 
 <script>
 function handleCheckboxChange(checkbox) {
+    console.log("Checkbox changed!", checkbox.checked, checkbox.value, checkbox.dataset.wc_id);
 // получение параметров
     const urlParams = new URLSearchParams(window.location.search);
     const wc_id = urlParams.get('wc_id'); 
     const dep_id = urlParams.get('dep_id');
     const worker_id = checkbox.value;
-
+    const form = document.getElementById('workersForm');
 // проверка на наличие параметров   
     if (!wc_id || !worker_id) {
         console.error('Отсутствуют обязательные параметры!');
@@ -68,7 +76,7 @@ function handleCheckboxChange(checkbox) {
     }
 
 // подтверждение удаления
-    if (!checkbox.checked && !confirm('Вы уверены, что хотите удалить рабочего из центра?')) {
+    if (!checkbox.checked && !confirm('Подтвердите удаление рабочего из РЦ?')) {
         checkbox.checked = true;
         return;
     }
