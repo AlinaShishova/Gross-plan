@@ -258,7 +258,6 @@ select d.dm_index,
     """,
  
     
-    
 #  Для диаграммы Ганнта
 "gantt": """
     SELECT 
@@ -316,74 +315,81 @@ WHERE cc.cube_specification_id = :node_id
 
 
     """,
+
 # Вывод списка рабочих центров
 "work_center": """
-SELECT 
-    m.wc_id,
-    (SELECT w.short_name FROM workshop w WHERE w.ind = m.dep_id) AS dep_name,
-    m.name,
-    (SELECT t.name FROM tec_types t WHERE t.ind = m.tech_type_id) AS tec_name,
-    m.class_num_ws,
-    m.class_num_all,
-    m.model_name,
-    (SELECT COUNT(p.wcp_id) FROM wc_positions p WHERE p.wc_id = m.wc_id) AS num_comp
-FROM 
-    wc_main m
-WHERE 
-    m.is_deleted = 0
-ORDER BY
-    dep_name,
-    tec_name,
-    m.name
+    SELECT 
+        m.wc_id,
+        (SELECT w.short_name FROM workshop w WHERE w.ind = m.dep_id) AS dep_name,
+        m.name,
+        (SELECT t.name FROM tec_types t WHERE t.ind = m.tech_type_id) AS tec_name,
+        m.class_num_ws,
+        m.class_num_all,
+        m.model_name,
+        (SELECT COUNT(p.wcp_id) FROM wc_positions p WHERE p.wc_id = m.wc_id) AS num_comp,
+        m.dep_id
+    FROM 
+        wc_main m
+    WHERE 
+        m.is_deleted = 0
+    ORDER BY
+        m.class_num_ws,
+        m.class_num_all
+        --dep_name,
+        --tec_name,
+        --m.name
 """,
-# Состав рабочего центра
+
+# Состав рабочего центра старая версия
 "wc_positions": """
-SELECT 
-    p.wcp_id,
-    p.wc_id,
-    p.worker_id,
-    w.name AS worker_name,
-    w.clock_number AS worker_number
-FROM 
-    wc_positions p
-LEFT JOIN 
-    workers w ON w.ind = p.worker_id
-WHERE
-    p.is_deleted = 0 AND
-    p.wc_id = :wc_id
+    SELECT 
+        p.wcp_id,
+        p.wc_id,
+        p.worker_id,
+        w.name AS worker_name,
+        w.clock_number AS worker_number
+    FROM 
+        wc_positions p
+    LEFT JOIN 
+        workers w ON w.ind = p.worker_id
+    WHERE
+        p.is_deleted = 0 AND
+        p.wc_id = :wc_id
 """,
 
 # Список цехов директора производства
 "workshop_dp": """
-SELECT 
-    w.ind, 
-    w.short_name 
-FROM 
-    workshop w 
-WHERE 
-    w.ind IN (2, 3, 4, 12, 14, 29) 
-ORDER BY 
-    w.short_name
+    SELECT 
+        w.ind, 
+        w.short_name 
+    FROM 
+        workshop w 
+    WHERE 
+        w.ind IN (2, 3, 4, 12, 14, 29) 
+    ORDER BY 
+        w.short_name
 """,
+
 # Основные типы техпроцессов
 "main_spec_type": """
-SELECT 
-    t.ind,
-    t.short_name,
-    t.name,
-    t.*
-FROM 
-    tec_types t
-WHERE 
-    t.ind NOT IN (0, 6, 7, 10, 12)
+    SELECT 
+        t.ind,
+        t.short_name,
+        t.name,
+        t.*
+    FROM 
+        tec_types t
+    WHERE 
+        t.ind NOT IN (0, 6, 7, 10, 12)
 """,
+
 # Пометка на удаление рабочего центра
 "delete_wc": """
-        UPDATE wc_main 
-        SET is_deleted = 1
-        WHERE wc_id = :wc_id
-    
-    """,
+    UPDATE wc_main 
+    SET is_deleted = 1
+    WHERE wc_id = :wc_id
+""",
+
 # Обновление рабочего центра 
 "update_wc": """
     UPDATE WC_MAIN
@@ -396,6 +402,7 @@ WHERE
     WHERE 
         wc_id = :wc_id
 """,
+
 # Создание нового рабочего центра
 "insert_wc": """
     INSERT INTO WC_MAIN (
@@ -411,5 +418,124 @@ WHERE
         :class_num_all,
         :tech_type_id
     )
+""",
+
+# Список бригад/рабочих цеха с чеком для выбора в состав РЦ
+"wc_pos": """
+SELECT 
+    w.ind,
+    COUNT(CASE WHEN pp.wc_id = :wc_id THEN 1 END) AS check_val,
+    w.clock_number,
+    w.name,
+    s.name AS specialty,
+    m.name AS center_name
+FROM 
+    workers w
+LEFT JOIN 
+    workers_specialty s ON s.ind = w.specialty_id
+LEFT JOIN 
+    wc_positions p ON p.worker_id = w.ind
+LEFT JOIN 
+    wc_main m ON m.wc_id = p.wc_id
+LEFT JOIN 
+    wc_positions pp ON pp.worker_id = w.ind AND pp.wc_id = :wc_id
+WHERE 
+    w.workshop = :dep_id
+    AND w.del = 0
+    AND w.brigade IS NULL
+GROUP BY 
+    w.ind, w.clock_number, w.name, s.name, m.name, w.is_brigade
+ORDER BY
+    check_val DESC,
+    specialty,
+    w.is_brigade DESC,
+    w.name
+""",
+
+# Удаление рабочего из РЦ
+"del_workers_wc": """
+DELETE FROM wc_positions WHERE worker_id = :worker_id
+""",
+
+# Добавление рабочего в РЦ
+"add_worker_wc": """
+INSERT INTO wc_positions (wc_id, worker_id) VALUES (:wc_id, :worker_id)
+""",
+
+# Выборка операций по рабочему центру для обучения
+"wc_oper": """
+SELECT DISTINCT
+       wcm.wc_id AS resource_id,
+       wcm.class_num_ws AS target,
+       wcm.name AS resource_name,
+       dc.short_name AS dse_class,
+       TO_CHAR(NVL(TRIM(mh.kind_of_hire_name), 'н/д')) AS m_name, 
+       TO_CHAR(NVL(TRIM(mh.hire_height), 'н/д')) AS m_p1,  
+       TO_CHAR(NVL(TRIM(mh.hire_width), 'н/д')) AS m_p2,  
+       TO_CHAR(NVL(TRIM(mh.hire_length), 'н/д')) AS m_p3,
+       NVL(NVL2(mh.dm_index, 
+           LTRIM(RTRIM(NVL2(TRIM(mh.kind_of_hire_name), mh.kind_of_hire_name || '~', NULL) || 
+                 NVL2(TRIM(mh.hire_height), mh.hire_height || '~', NULL) || 
+                 NVL2(TRIM(mh.hire_width), mh.hire_width || '~', NULL) || 
+                 mh.hire_length, '~ '), '~ '), NULL), 
+           dc.short_name) AS material_name,
+       oo.is_cnc,
+       NVL(pr.name, 'н/д') AS trade,
+       too.name AS oper_type,
+       tg.code_t AS oper_group,
+       ts.code AS tarif,
+       TO_CHAR(po.code_bill) AS bill,
+       pg.short_name AS product_group,
+       DECODE(bu.ind, 1, 'н/д', NULL, 'н/д', bu.short_name) AS bu_name 
+       -- 
+       --, DECODE(ot.tec_type, 2, tm.name, NULL) AS tool_unit_name
+       --, DECODE(ot.tec_type, 2, tu.ind, NULL) AS tool_unit_id
+  FROM work_order_main m
+  JOIN work_order_dse d
+    ON d.wom = m.ind
+  JOIN work_order_operations o
+    ON o.wod = d.ind
+  JOIN work_order_pu p
+    ON p.wod = d.ind
+   AND p.ino_ind IS NULL  -- искл. межцеховые
+  JOIN ort_operations oo
+    ON oo.ind = o.operation_ind
+  JOIN ort_technologyes ot
+    ON ot.ind = oo.oper_technology
+  JOIN programm_order po
+    ON po.ind = p.bill_order
+  LEFT JOIN production_groups pg
+    ON pg.ind = po.order_group
+  LEFT JOIN business_units bu
+    ON bu.ind = po.business_unit
+  JOIN wc_positions wcp
+    ON wcp.worker_id = m.worker_ind
+  JOIN wc_main wcm
+    ON wcm.wc_id = wcp.wc_id
+   AND wcm.dep_id = m.workshop_ind    -- цех наряда совпадает с цехом ресурса
+   AND wcm.tech_type_id = ot.tec_type -- ТП операции совпадает с ТП ресурса
+  JOIN dse_main dm
+    ON dm.dm_index = d.dse
+  JOIN dse_classes dc
+    ON dc.ind = dm.dm_class_id
+  LEFT JOIN mv_dse_material_hire mh
+    ON mh.dm_index = dm.dm_index
+  LEFT JOIN tools_operations too
+    ON too.ind = o.operation_type_id
+  LEFT JOIN tools_group tg
+    ON tg.ind = o.tool_group
+  LEFT JOIN tarif_scale ts
+    ON ts.ind = o.tarif_scale
+  LEFT JOIN tools_units tu
+    ON tu.ind = o.tool_unit_id
+  LEFT JOIN tools_models tm
+    ON tm.ind = tu.model_id
+  LEFT JOIN ort_trades pr
+    ON (ot.is_wshop = 0 AND pr.ind || '' = oo.trade_code) 
+    OR (ot.is_wshop = 1 AND pr.code = oo.trade_code)
+ WHERE m.workshop_ind = :worshop_id -- ЦЕХ
+   AND ot.tec_type = :tec_type_id -- ТИП ТП
+   AND TRUNC(m.date_realization) BETWEEN '01.04.2025' AND '30.04.2025'
+   AND o.base_time + o.preparation_time > 0 -- ???
 """
 }

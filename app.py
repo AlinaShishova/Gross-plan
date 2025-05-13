@@ -208,6 +208,7 @@ def update_spec_date():
 
 
 @app.route('/gantt/<int:node_id>')
+@login_required
 def gantt(node_id):
     try:
         spec_name = request.args.get('spec_name', default='Без названия')
@@ -253,6 +254,7 @@ def gantt(node_id):
 # ===================================================================
 from chart_generator import generate_heatmap
 @app.route("/heatmap/")
+@login_required
 def show_heatmap():
     heatmap_html = generate_heatmap()
     return render_template("heatmap.html", heatmap_html=heatmap_html)
@@ -260,6 +262,7 @@ def show_heatmap():
 
 # Список рабочих центров
 @app.route("/work_center/")
+@login_required
 def work_center():
     workshops = db_oracle.execute_query("workshop_dp")
     tech_types = db_oracle.execute_query("main_spec_type")
@@ -267,15 +270,18 @@ def work_center():
     return render_template('work_center.html', results=results, workshops=workshops, tech_types=tech_types)
 
 # Состав рабочего центра
-@app.route("/wc_composition/") #<int:wc_id>
+@app.route("/wc_composition/") 
+@login_required
 def wc_composition():
     wc_id = request.args.get('wc_id')
-    results = db_oracle.execute_query("wc_positions",{'wc_id': wc_id})
+    dep_id = request.args.get('dep_id')
+    results = db_oracle.execute_query("wc_pos",{'wc_id': wc_id, 'dep_id': dep_id})
 #    print(f"Результаты: {results}") 
     return render_template('wc_composition.html', results=results)
 
 # Добавление рабочего центра
 @app.route('/add_work_center', methods=['POST'])
+@login_required
 def add_work_center():
     try:
         # Получение данных из формы
@@ -304,6 +310,7 @@ def add_work_center():
 
 # Редактирование рабочего центра
 @app.route('/edit_work_center', methods=['POST'])
+@login_required
 def edit_work_center():
     try:
          # Получение данных из формы
@@ -331,6 +338,7 @@ def edit_work_center():
 
 # Удаление рабочего центра (пометка на удаление)
 @app.route('/delete_work_center', methods=['POST'])
+@login_required
 def delete_work_center():
     wc_id = request.form.get('wc_id')
     try:
@@ -340,6 +348,51 @@ def delete_work_center():
         flash(f'Ошибка при удалении: {str(e)}', 'error')
     
     return redirect(url_for('work_center'))  # к списку
+
+# Добавление рабочего/бригады в РЦ
+@app.route('/add_worker_to_wc', methods=['POST'])
+@login_required
+def add_worker_to_wc():
+    worker_id = request.form.get('worker_id')
+    wc_id = request.form.get('wc_id')
+    dep_id = request.form.get('dep_id')
+    print(worker_id)
+    print(wc_id)
+    try:
+        # Удаление рабочего из старого РЦ
+        print(worker_id)
+        print(wc_id)
+        db_oracle.execute_query("del_workers_wc", {"worker_id": worker_id})
+        
+        # Добавление рабочего в РЦ
+        db_oracle.execute_query("add_worker_wc", {"wc_id": wc_id, "worker_id": worker_id})
+        flash('Рабочий успешно добавлен', 'success')
+        
+    except Exception as e:
+        flash(f'Ошибка при добавлении рабочего: {str(e)}', 'danger')
+    
+    return redirect(url_for('wc_composition', wc_id=wc_id, dep_id=dep_id))
+
+# Удаление рабочего/бригады из РЦ
+@app.route('/remove_worker_from_wc', methods=['POST'])
+@login_required
+def remove_worker_from_wc():
+    # Получение данных из формы
+    worker_id = request.form.get('worker_id')
+    wc_id = request.form.get('wc_id')
+    dep_id = request.form.get('dep_id')
+    
+    try:    
+        # Удаление рабочего из РЦ
+        db_oracle.execute_query("del_workers_wc", {"worker_id": worker_id})
+        
+        flash('Рабочий успешно удален', 'success')
+        
+    except Exception as e:
+        flash(f'Ошибка при удалении рабочего: {str(e)}', 'danger')
+    
+    return redirect(url_for('wc_composition', wc_id=wc_id, dep_id=dep_id))
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
