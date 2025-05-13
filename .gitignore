@@ -12,3 +12,8 @@ __pycache__/config.cpython-313.pyc
 __pycache__/config.cpython-313.pyc
 __pycache__/config.cpython-313.pyc
 Gross-plan.zip
+data.csv
+catboost_info/catboost_training.json
+models
+catboost_info
+
