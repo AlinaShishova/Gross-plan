@@ -462,7 +462,7 @@ DELETE FROM wc_positions WHERE worker_id = :worker_id
 INSERT INTO wc_positions (wc_id, worker_id) VALUES (:wc_id, :worker_id)
 """,
 
-# Выбор операций по рабочему центру для обучения
+# Выборка операций по рабочему центру для обучения
 "wc_oper": """
 SELECT DISTINCT
        wcm.wc_id AS resource_id,
