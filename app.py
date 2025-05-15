@@ -394,5 +394,33 @@ def remove_worker_from_wc():
     return redirect(url_for('wc_composition', wc_id=wc_id, dep_id=dep_id))
 
 
+
+
+@app.route('/test_jobs/<int:cc_id>')
+@login_required
+def test_jobs(cc_id):
+    try:
+
+        rows = db_oracle.execute_query("test_jobs", {"cc_id": cc_id})
+        result = []
+        cc_name = rows[0][1]
+
+        for row in rows:
+            
+            result.append({
+                "id": row[0],
+                "start": row[2],
+                "end": row[3],
+            })
+
+
+        return render_template('test_jobs.html', jobs_data=result,cc_name=cc_name)
+       
+
+    except Exception as e:
+        print(f"Ошибка при получении графика: {e}")
+        return jsonify({"error": "Ошибка сервера"}), 500
+    
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

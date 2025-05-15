@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block sub_content %}
+
+<!-- Подключение скриптов Highcharts Gantt -->
+<script src="/static/highcharts/code/highcharts.js"></script>
+<script src="/static/highcharts/code/highcharts-more.js"></script>
+<script src="/static/highcharts/code/modules/gantt.js"></script>
+<script src="/static/highcharts/code/modules/accessibility.js"></script>
+
+<div style="margin-bottom: 1em;">
+  <button onclick="setZoom(60)">1 час</button>
+  <button onclick="setZoom(10)">10 минут</button>
+  </div>
+
+<div id="container"></div>
+
+<script>
+
+    const rawData = {{ jobs_data | tojson }};
+    const sliced = rawData.slice(0, 4000);
+
+    const temp = sliced.map(item => ({
+      id:    item.id.toString(),
+      name: item.id.toString(),
+      start: Date.parse(item.start),
+      end:   Date.parse(item.end),
+
+    }));
+
+// 2) Сортируем по start
+  temp.sort((a, b) => a.start - b.start);
+
+  // 3) Алгоритм раскладки по «полосам»
+  const laneEnd = [];      // laneEnd[i] = крайний конец последней задачи в  lane i
+  temp.forEach(job => {
+    // ищем полосу, в которую влезет: её конец <= старт текущей
+    let lane = laneEnd.findIndex(endTime => endTime <= job.start);
+    if (lane === -1) {
+      // не нашли — создаём новую
+      lane = laneEnd.length;
+      laneEnd.push(job.end);
+    } else {
+      // нашли — обновляем конец
+      laneEnd[lane] = job.end;
+    }
+    job.y = lane;
+  });
+
+  // 4) Подготовим подписи полос
+  const categories = laneEnd.map((_, i) => `Полоса ${i+1}`);
+
+  // 5) Инициализация графика
+  ganttChart = Highcharts.ganttChart('container', {
+    title: { text: 'План работ компонента {{ cc_name }}' },
+    chart: { zoomType: 'x' },
+    navigator: { enabled: true, liveRedraw: true },
+    rangeSelector: { enabled: true, selected: 0 },
+    xAxis: { currentDateIndicator: true },
+    yAxis: {
+      categories,
+      min: 0,
+      max: categories.length - 1,
+      grid: { enabled: false }
+    },
+    series: [{
+      name: 'Jobs',
+      data: temp
+    }],
+    tooltip: {
+      pointFormatter: function () {
+        return `<b>${this.name}</b><br/>` +
+               `Start: ${Highcharts.dateFormat('%Y-%m-%d %H:%M', this.start)}<br/>` +
+               `End:   ${Highcharts.dateFormat('%Y-%m-%d %H:%M', this.end)}`;
+      }
+    }
+  });
+
+  // 3) Функция для изменения масштаба по последним N минутам
+  function setZoom(minutes) {
+    if (!ganttChart) return;
+    const axis = ganttChart.xAxis[0];
+    const { max } = axis.getExtremes();
+    const min = max - minutes * 60 * 1000;
+    axis.setExtremes(min, max);
+  }
+</script>
+{% endblock %}

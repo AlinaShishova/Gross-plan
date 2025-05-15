@@ -538,4 +538,16 @@ SELECT DISTINCT
    AND TRUNC(m.date_realization) BETWEEN '01.04.2025' AND '30.04.2025'
    AND o.base_time + o.preparation_time > 0 -- ???
 """
+
+,
+"test_jobs":
+    """
+    select cj_id, dm.dm_name, start_job, end_job
+    from cube_job_plan cjp
+    join cube_jobs cj on cjp.cj_id = cj.cube_job_id
+    join cube_components cc on cc.CUBE_COMPONENT_ID = cj.CUBE_COMPONENT_ID
+    JOIN dse_main dm ON dm.dm_index = cc.dse_id
+    where cc.cube_component_id = :cc_id 
+    ORDER BY cjp.start_job
+    """
 }
