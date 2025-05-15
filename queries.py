@@ -333,6 +333,7 @@ WHERE cc.cube_specification_id = :node_id
     WHERE 
         m.is_deleted = 0
     ORDER BY
+        dep_name,
         m.class_num_ws,
         m.class_num_all
         --dep_name,
@@ -486,7 +487,12 @@ SELECT DISTINCT
        ts.code AS tarif,
        TO_CHAR(po.code_bill) AS bill,
        pg.short_name AS product_group,
-       DECODE(bu.ind, 1, 'н/д', NULL, 'н/д', bu.short_name) AS bu_name 
+       DECODE(bu.ind, 1, 'н/д', NULL, 'н/д', bu.short_name) AS bu_name,
+       ot.tec_type,
+       p.valid_num AS dse_count,
+       o.base_time,
+      -- wcm.tech_type_id as wc_type,
+       d.dse
        -- 
        --, DECODE(ot.tec_type, 2, tm.name, NULL) AS tool_unit_name
        --, DECODE(ot.tec_type, 2, tu.ind, NULL) AS tool_unit_id
@@ -534,8 +540,8 @@ SELECT DISTINCT
     ON (ot.is_wshop = 0 AND pr.ind || '' = oo.trade_code) 
     OR (ot.is_wshop = 1 AND pr.code = oo.trade_code)
  WHERE m.workshop_ind = :worshop_id -- ЦЕХ
-   AND ot.tec_type = :tec_type_id -- ТИП ТП
-   AND TRUNC(m.date_realization) BETWEEN '01.04.2025' AND '30.04.2025'
+   -- AND ot.tec_type = :tec_type_id -- ТИП ТП
+   AND TRUNC(m.date_realization) BETWEEN '01.01.2024' AND '15.05.2025'
    AND o.base_time + o.preparation_time > 0 -- ???
 """
 
