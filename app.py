@@ -356,8 +356,8 @@ def add_worker_to_wc():
     worker_id = request.form.get('worker_id')
     wc_id = request.form.get('wc_id')
     dep_id = request.form.get('dep_id')
-    print(worker_id)
-    print(wc_id)
+    # print(worker_id)
+    # print(wc_id)
     try:
         # Удаление рабочего из старого РЦ
         # print(worker_id)
