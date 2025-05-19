@@ -555,5 +555,72 @@ SELECT DISTINCT
     JOIN dse_main dm ON dm.dm_index = cc.dse_id
     where cc.cube_component_id = :cc_id 
     ORDER BY cjp.start_job
-    """
+    """,
+
+# Выборка Job для предсказания рабочего центра
+"pred_wc": """
+SELECT --wcm.wc_id as resource_id,
+       --wcm.class_num_ws as target,
+       --wcm.name as resource_name,
+       dc.short_name AS dse_class,
+       TO_CHAR(NVL(TRIM(mh.kind_of_hire_name), 'н/д')) AS m_name, 
+       TO_CHAR(NVL(TRIM(mh.hire_height), 'н/д')) AS m_p1,  
+       TO_CHAR(NVL(TRIM(mh.hire_width), 'н/д')) AS m_p2,  
+       TO_CHAR(NVL(TRIM(mh.hire_length), 'н/д')) AS m_p3,
+       NVL(NVL2(mh.dm_index, 
+           LTRIM(RTRIM(NVL2(TRIM(mh.kind_of_hire_name), mh.kind_of_hire_name || '~', NULL) || 
+                 NVL2(TRIM(mh.hire_height), mh.hire_height || '~', NULL) || 
+                 NVL2(TRIM(mh.hire_width), mh.hire_width || '~', NULL) || 
+                 mh.hire_length, '~ '), '~ '), NULL), 
+           dc.short_name) AS material_name,
+       oo.is_cnc,
+       NVL(pr.name, 'н/д') AS trade,
+       too.name AS oper_type,
+       tg.code_t AS oper_group,
+       ts.code AS tarif,
+       TO_CHAR(po.code_bill) AS bill,
+       pg.short_name AS product_group,
+       DECODE(bu.ind, 1, 'н/д', NULL, 'н/д', bu.short_name) AS bu_name,
+       ot.tec_type,
+       jo.count AS dse_count,
+       jo.count_ready AS dse_count_ready,
+       jo.base_time,
+       jo.prep_time,
+       ot.dse
+FROM cube_job_opers jo
+JOIN cube_jobs j
+    ON j.cube_job_id = jo.cube_job_id
+JOIN cube_specification spec
+    ON spec.cube_specification_id = j.cube_spec_id
+LEFT JOIN programm_dse_link dl
+    ON dl.ind = spec.spec_id
+LEFT JOIN programm_dse pd
+    ON pd.ind = dl.programm_dse_id
+JOIN ort_operations oo
+    ON oo.ind = jo.operation_id
+JOIN ort_technologyes ot
+    ON ot.ind = oo.oper_technology
+JOIN programm_order po
+    ON po.ind = pd.programm_order
+LEFT JOIN production_groups pg
+    ON pg.ind = po.order_group
+LEFT JOIN business_units bu
+    ON bu.ind = po.business_unit
+JOIN dse_main dm
+    ON dm.dm_index = ot.dse
+JOIN dse_classes dc
+    ON dc.ind = dm.dm_class_id
+LEFT JOIN mv_dse_material_hire mh
+    ON mh.dm_index = dm.dm_index
+LEFT JOIN tools_operations too
+    ON too.ind = oo.oper_type
+LEFT JOIN tools_group tg
+    ON tg.ind = oo.tool_group
+LEFT JOIN tarif_scale ts
+    ON ts.ind = oo.tarif_scale
+LEFT JOIN ort_trades pr
+    ON (ot.is_wshop = 0 AND pr.ind || '' = oo.trade_code) 
+    OR (ot.is_wshop = 1 AND pr.code = oo.trade_code)
+WHERE jo.cube_job_id = :cube_job_id
+"""
 }
