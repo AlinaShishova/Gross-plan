@@ -585,7 +585,7 @@ SELECT --wcm.wc_id as resource_id,
        jo.count AS dse_count,
        jo.count_ready AS dse_count_ready,
        jo.base_time,
-       jo.prep_time,
+       --jo.prep_time,
        ot.dse
 FROM cube_job_opers jo
 JOIN cube_jobs j
