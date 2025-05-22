@@ -15,6 +15,9 @@
                 aria-label="Добавить рабочий центр">
             <i class="fa-solid fa-plus"></i> Добавить
         </button>
+        <button type="button" class="btn btn-outline-secondary" id="resetFiltersBtn">
+            <i class="fa-solid fa-filter-circle-xmark"></i> Сбросить фильтры
+        </button>
     </div>
       
     <div class="row mt-5"> 
@@ -153,28 +156,56 @@
 </div>
 
 <script>
-// Функция для фильтрации таблицы
-function filterTable() {
-    const table = document.getElementById('workCentersTable');
-    const filters = [];
-    
-    // Собираем все фильтры
+// Сохранение состояния фильтров в localStorage
+function saveFilters() {
+    const filters = {};
     document.querySelectorAll('.column-filter').forEach(input => {
         const columnIndex = input.getAttribute('data-column');
-        const filterValue = input.value.toLowerCase();
-        filters[columnIndex] = filterValue;
+        filters[columnIndex] = input.value;
     });
+    localStorage.setItem('workCenterFilters', JSON.stringify(filters));
+}
+
+// Восстановление фильтров из localStorage
+function restoreFilters() {
+    const savedFilters = localStorage.getItem('workCenterFilters');
+    if (savedFilters) {
+        const filters = JSON.parse(savedFilters);
+        document.querySelectorAll('.column-filter').forEach(input => {
+            const columnIndex = input.getAttribute('data-column');
+            if (filters[columnIndex] !== undefined) {
+                input.value = filters[columnIndex];
+            }
+        });
+        filterTable();
+    }
+}
+
+// Основная функция фильтрации
+function filterTable() {
+    const table = document.getElementById('workCentersTable');
+    if (!table) return;
     
-    // Применяем фильтры к каждой строке таблицы
+    const filters = [];
+    document.querySelectorAll('.column-filter').forEach(input => {
+        const columnIndex = parseInt(input.getAttribute('data-column'));
+        filters[columnIndex] = input.value.toLowerCase().trim();
+    });
+
+    // Сохраняем текущие фильтры
+    saveFilters();
+
+    // Фильтрация строк таблицы
     const rows = table.querySelectorAll('tbody tr');
+    let visibleRows = 0;
+    
     rows.forEach(row => {
         let shouldShow = true;
         const cells = row.querySelectorAll('td');
         
-        // Проверяем каждую ячейку в строке
         for (let i = 0; i < cells.length - 1; i++) { // -1 чтобы исключить колонку с кнопками
-            if (filters[i]) {
-                const cellText = cells[i].textContent.toLowerCase();
+            if (filters[i] && filters[i] !== '') {
+                const cellText = cells[i].textContent.toLowerCase().trim();
                 if (!cellText.includes(filters[i])) {
                     shouldShow = false;
                     break;
@@ -182,19 +213,49 @@ function filterTable() {
             }
         }
         
-        // Показываем/скрываем строку в зависимости от результата фильтрации
         row.style.display = shouldShow ? '' : 'none';
+        if (shouldShow) visibleRows++;
     });
+
+    // Показываем сообщение, если нет результатов
+    const noResultsAlert = document.querySelector('.alert-info');
+    if (visibleRows === 0 && rows.length > 0) {
+        if (!noResultsAlert) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-info mt-4';
+            alertDiv.role = 'alert';
+            alertDiv.textContent = 'Нет данных, соответствующих фильтрам';
+            table.parentNode.insertBefore(alertDiv, table.nextSibling);
+        }
+    } else if (noResultsAlert) {
+        noResultsAlert.remove();
+    }
 }
 
-// Инициализация фильтров
+// Сброс всех фильтров
+function resetFilters() {
+    document.querySelectorAll('.column-filter').forEach(input => {
+        input.value = '';
+    });
+    localStorage.removeItem('workCenterFilters');
+    filterTable();
+}
+
+// Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
-    // Назначаем обработчики событий для всех фильтров
+    // Восстанавливаем сохраненные фильтры
+    restoreFilters();
+    
+    // Назначаем обработчики для фильтров
     document.querySelectorAll('.column-filter').forEach(input => {
         input.addEventListener('input', filterTable);
     });
+    
+    // Назначаем обработчик для кнопки сброса
+    document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
 });
 
+// Оригинальные функции
 function prepareAddForm() {
     document.getElementById('wcModalLabel').textContent = 'Добавить рабочий центр';
     document.getElementById('wcForm').action = "{{ url_for('add_work_center') }}";
@@ -238,19 +299,16 @@ function confirmDelete(wc_id) {
         return false;
     }
     
-    // Создаем форму для отправки запроса на удаление
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = "{{ url_for('delete_work_center') }}";
      
-    // Добавляем ID рабочего центра
     const input = document.createElement('input');
     input.type = 'hidden';
     input.name = 'wc_id';
     input.value = wc_id;
     form.appendChild(input);
     
-    // Добавляем форму в документ и отправляем
     document.body.appendChild(form);
     form.submit();
     
