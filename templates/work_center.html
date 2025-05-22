@@ -20,15 +20,33 @@
     <div class="row mt-5"> 
         {% if results %}
         <div class="table-responsive" style="max-width: 100%; margin: 0 auto;">
-            <table class="table table-striped table-hover">
+            <table class="table table-striped table-hover" id="workCentersTable">
                 <thead class="table-light">
                     <tr>
-                        <th scope="col">Цех</th>
-                        <th scope="col">Название</th>
-                        <th scope="col">Тип ТП</th>
-                        <th scope="col">Класс (цех, ТП)</th>
-                        <th scope="col">Класс (общий)</th>
-                        <th scope='col'>Состав (ед.)</th>
+                        <th scope="col">
+                            <div>Цех</div>
+                            <input type="text" class="form-control form-control-sm column-filter" data-column="0" placeholder="Фильтр...">
+                        </th>
+                        <th scope="col">
+                            <div>Название</div>
+                            <input type="text" class="form-control form-control-sm column-filter" data-column="1" placeholder="Фильтр...">
+                        </th>
+                        <th scope="col">
+                            <div>Тип ТП</div>
+                            <input type="text" class="form-control form-control-sm column-filter" data-column="2" placeholder="Фильтр...">
+                        </th>
+                        <th scope="col">
+                            <div>Класс (цех, ТП)</div>
+                            <input type="text" class="form-control form-control-sm column-filter" data-column="3" placeholder="Фильтр...">
+                        </th>
+                        <th scope="col">
+                            <div>Класс (общий)</div>
+                            <input type="text" class="form-control form-control-sm column-filter" data-column="4" placeholder="Фильтр...">
+                        </th>
+                        <th scope='col'>
+                            <div>Состав (ед.)</div>
+                            <input type="text" class="form-control form-control-sm column-filter" data-column="5" placeholder="Фильтр...">
+                        </th>
                         <th scope='col'>Действия</th>
                     </tr>
                 </thead>
@@ -135,6 +153,48 @@
 </div>
 
 <script>
+// Функция для фильтрации таблицы
+function filterTable() {
+    const table = document.getElementById('workCentersTable');
+    const filters = [];
+    
+    // Собираем все фильтры
+    document.querySelectorAll('.column-filter').forEach(input => {
+        const columnIndex = input.getAttribute('data-column');
+        const filterValue = input.value.toLowerCase();
+        filters[columnIndex] = filterValue;
+    });
+    
+    // Применяем фильтры к каждой строке таблицы
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        let shouldShow = true;
+        const cells = row.querySelectorAll('td');
+        
+        // Проверяем каждую ячейку в строке
+        for (let i = 0; i < cells.length - 1; i++) { // -1 чтобы исключить колонку с кнопками
+            if (filters[i]) {
+                const cellText = cells[i].textContent.toLowerCase();
+                if (!cellText.includes(filters[i])) {
+                    shouldShow = false;
+                    break;
+                }
+            }
+        }
+        
+        // Показываем/скрываем строку в зависимости от результата фильтрации
+        row.style.display = shouldShow ? '' : 'none';
+    });
+}
+
+// Инициализация фильтров
+document.addEventListener('DOMContentLoaded', function() {
+    // Назначаем обработчики событий для всех фильтров
+    document.querySelectorAll('.column-filter').forEach(input => {
+        input.addEventListener('input', filterTable);
+    });
+});
+
 function prepareAddForm() {
     document.getElementById('wcModalLabel').textContent = 'Добавить рабочий центр';
     document.getElementById('wcForm').action = "{{ url_for('add_work_center') }}";
