@@ -420,7 +420,27 @@ def test_jobs(cc_id):
     except Exception as e:
         print(f"Ошибка при получении графика: {e}")
         return jsonify({"error": "Ошибка сервера"}), 500
-    
+
+
+@app.route('/schedule/', methods=['GET','post'])
+@login_required
+def schedule():
+    dep_id = request.args.get('dep_id')  # получаем выбранный цех (если есть)
+
+    try:
+        workshops = db_oracle.execute_query("select_dep")
+        table_data = []
+
+        if dep_id:
+            table_data = db_oracle.execute_query("show_dep", {"dep_id": dep_id})
+
+    except Exception as e:
+        flash(f'Ошибка: {str(e)}', 'danger')
+        workshops = []
+        table_data = []
+
+    return render_template('schedule.html', workshops=workshops, table_data=table_data)
+ 
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

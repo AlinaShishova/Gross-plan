@@ -651,4 +651,28 @@ FROM
 WHERE 
     jo.cube_job_id = :cube_job_id
 """
+, 
+# Выбор цеха для загрузки графика работ
+"select_dep":
+    """
+   SELECT distinct
+    w.short_name AS dep_name
+FROM 
+    wc_main m
+JOIN 
+    workshop w ON w.ind = m.dep_id
+
+"""
+, 
+"show_dep":
+    """
+    SELECT 
+    m.wc_id,
+    (SELECT w.short_name FROM workshop w WHERE w.ind = m.dep_id) AS dep_name,
+    m.name
+    FROM 
+    wc_main m
+    WHERE m.dep_id = :dep_id 
+
+"""
 }
