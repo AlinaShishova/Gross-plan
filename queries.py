@@ -34,7 +34,7 @@ queries = {
                     PO.SUBCODE_BILL,
                     PO.SHORT_NAME""",
     "spec":"""
-        SELECT CS.CUBE_SPECIFICATION_ID, -- ИНДЕКС СПЕЦИФИКАЦИИ (СКРЫТ) 
+      SELECT CS.CUBE_SPECIFICATION_ID, -- ИНДЕКС СПЕЦИФИКАЦИИ (СКРЫТ) 
                 CS.STOP, -- ЗНАЧЕК В РАБОТЕ = 1 /ОСТАНОВЛЕН = 0 
                 CS.DSE_ID, -- ИНДЕКС ДСЕ ДЛЯ ПЕРЕХОДА К СОСТАВУ ИЗДЕЛИЯ (СКРЫТ)
                 (SELECT DM.DM_NAME || ' ' || DM.DM_DRAFT
@@ -44,14 +44,14 @@ queries = {
                 FROM PROGRAMM_DSE PD
                 WHERE PD.IND = CS.SPEC_ID) AS TYPE_SPEC, -- ТИП
                 CS.DATE_GENERAL, -- НАЧАЛО
-                (SELECT PD.TITLE FROM PROGRAMM_DSE PD WHERE PD.IND = CS.SPEC_ID) AS TITLE, -- ПРИМЕЧАНИЕ
+                (SELECT PD.TITLE FROM PROGRAMM_DSE PD, programm_dse_link dsl WHERE dsl.programm_dse_id = pd.ind and  dsl.IND = CS.SPEC_ID) AS TITLE, -- ПРИМЕЧАНИЕ
                 CS.SPEC_ID -- ИНДЕКС СПЕЦИФИКАЦИИ (СКРЫТ, НА ВСЯКИЙ СЛУЧАЙ)
         FROM 
             CUBE_SPECIFICATION CS
         WHERE 
             CS.SPEC_ID IN (SELECT PDL.IND
                         FROM PROGRAMM_DSE_LINK PDL
-                        WHERE PDL.PROGRAMM_SUBORDER_ID = :ps_ind) -- ПАРАМЕТРЫ ФИЛЬТРАЦИИ (ПЕРЕДАЕТСЯ ИНДЕКС ПЛАТЕЖНОГО УЗЛА)
+                        WHERE PDL.PROGRAMM_SUBORDER_ID = 272307) -- ПАРАМЕТРЫ ФИЛЬТРАЦИИ (ПЕРЕДАЕТСЯ ИНДЕКС ПЛАТЕЖНОГО УЗЛА)
     
     """,
     "update_status":"""
@@ -489,9 +489,9 @@ SELECT DISTINCT
        pg.short_name AS product_group,
        DECODE(bu.ind, 1, 'н/д', NULL, 'н/д', bu.short_name) AS bu_name,
        ot.tec_type,
-       p.valid_num AS dse_count,
+    -- p.valid_num AS dse_count,
        o.base_time,
-      -- wcm.tech_type_id as wc_type,
+    -- wcm.tech_type_id as wc_type,
        d.dse
        -- 
        --, DECODE(ot.tec_type, 2, tm.name, NULL) AS tool_unit_name
@@ -571,7 +571,8 @@ WHERE
         FROM 
             cube_job_resources r
     )
-    AND j.cube_spec_id = 141 -- убрать после тестов
+    --AND j.cube_spec_id = 141 -- убрать после тестов
+    
 """,
 
 # Выборка Job для предсказания рабочего центра
@@ -651,6 +652,7 @@ FROM
                            OR (ot.is_wshop = 1 AND pr.code = oo.trade_code)
 WHERE 
     jo.cube_job_id = :cube_job_id
-    AND too.ind != 369
+    AND too.ind != 369 -- контроль качества
+    AND jo.count - jo.count_ready > 0 --проверка на выполненные операции
 """
 }
