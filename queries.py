@@ -543,6 +543,7 @@ SELECT DISTINCT
    -- AND ot.tec_type = :tec_type_id -- ТИП ТП
    AND TRUNC(m.date_realization) BETWEEN '01.01.2024' AND '15.05.2025'
    AND o.base_time + o.preparation_time > 0 -- ???
+   AND wcm.is_plan = 1
 """
 
 ,
@@ -650,6 +651,7 @@ FROM
                            OR (ot.is_wshop = 1 AND pr.code = oo.trade_code)
 WHERE 
     jo.cube_job_id = :cube_job_id
+    AND too.ind != 369
 """
 , 
 # Выбор цеха для загрузки графика работ
