@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block sub_content %}
+<div class="container-fluid my-4">
+
+    <div class="text-center">
+     <h1 class="h3 mb-5 fw-normal">График загрузки по цеху</h1>
+    </div>
+
+<form method="GET" action="{{ url_for('schedule') }}">
+    <div class="mb-3">
+        <label for="dep_id" class="form-label">Цех</label>
+        <div class="d-flex gap-2">
+            <select class="form-select" id="dep_id" name="dep_id" required style="max-width: 300px;">
+                <option value="" selected disabled>Выберите цех</option>
+                {% for workshop in workshops %}
+                <option value="{{ workshop[0] }}" {% if request.args.get('dep_id') == workshop[0]|string %}selected{% endif %}>
+                    {{ workshop[0] }}
+                </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-outline-dark">Обновить</button>
+        </div>
+    </div>
+</form>
+
+{% if table_data %}
+<table class="table table-bordered mt-4">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Цех</th>
+            <th>Наименование</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in table_data %}
+        <tr>
+            <td>{{ row[0] }}</td>
+            <td>{{ row[1] }}</td>
+            <td>{{ row[2] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+</div>
+
+
+{% endblock %}    
