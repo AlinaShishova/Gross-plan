@@ -560,18 +560,19 @@ SELECT DISTINCT
 
 # Выборка job без рабочих центров
 "job_not_wc": """
-SELECT 
-    j.cube_job_id
-FROM 
-    cube_jobs j
-WHERE 
-    j.cube_job_id NOT IN (
-        SELECT 
-            r.cube_job_id 
-        FROM 
-            cube_job_resources r
-    )
-    --AND j.cube_spec_id = 141 -- убрать после тестов
+    SELECT 
+        o.cube_job_id
+    FROM 
+        cube_job_opers o, ort_operations ort
+    WHERE 
+        NOT EXISTS (
+            SELECT 1 
+            FROM cube_job_resources r 
+            WHERE r.cube_job_id = o.cube_job_id)
+    AND ort.ind = o.operation_id
+    AND o.count - o.count_ready >0
+    AND o.dep_id  in(2, 3, 29, 4, 12, 14)
+    AND ort.oper_type != 369
     
 """,
 
@@ -652,8 +653,8 @@ FROM
                            OR (ot.is_wshop = 1 AND pr.code = oo.trade_code)
 WHERE 
     jo.cube_job_id = :cube_job_id
-    AND too.ind != 369 -- контроль качества
-    AND jo.count - jo.count_ready > 0 --проверка на выполненные операции
+    --AND too.ind != 369 -- контроль качества
+    --AND jo.count - jo.count_ready > 0 --проверка на выполненные операции
 """
 , 
 # Выбор цеха для загрузки графика работ
@@ -668,6 +669,7 @@ JOIN
 
 """
 , 
+# 
 "show_dep":
     """
     SELECT 
@@ -678,5 +680,121 @@ JOIN
     wc_main m
     WHERE m.dep_id = :dep_id 
 
+""",
+# Все записи без ресурса с аттрибутами для предсказания на GPU
+"all_jobs_not_in_res": """
+SELECT 
+    -- wcm.wc_id as resource_id,
+    -- wcm.class_num_ws as target,
+    -- wcm.name as resource_name,
+    jo.cube_job_id,
+    (SELECT ww.short_name FROM workshop ww WHERE ww.ind = jo.dep_id) AS workshop_name,
+    dc.short_name AS dse_class,
+    TO_CHAR(NVL(TRIM(mh.kind_of_hire_name), 'н/д')) AS m_name, 
+    TO_CHAR(NVL(TRIM(mh.hire_height), 'н/д')) AS m_p1,
+    TO_CHAR(NVL(TRIM(mh.hire_width), 'н/д')) AS m_p2,
+    TO_CHAR(NVL(TRIM(mh.hire_length), 'н/д')) AS m_p3,
+    NVL(
+        NVL2(mh.dm_index, 
+            LTRIM(RTRIM(
+                NVL2(TRIM(mh.kind_of_hire_name), mh.kind_of_hire_name || '~', NULL) || 
+                NVL2(TRIM(mh.hire_height), mh.hire_height || '~', NULL) || 
+                NVL2(TRIM(mh.hire_width), mh.hire_width || '~', NULL) || 
+                mh.hire_length, 
+                '~ '
+            ), 
+            '~ '
+        ), 
+        NULL
+    ), 
+    dc.short_name
+    ) AS material_name,
+    oo.is_cnc,
+    NVL(pr.name, 'н/д') AS trade,
+    too.name AS oper_type,
+    tg.code_t AS oper_group,
+    ts.code AS tarif,
+    TO_CHAR(po.code_bill) AS bill,
+    pg.short_name AS product_group,
+    DECODE(bu.ind, 1, 'н/д', NULL, 'н/д', bu.short_name) AS bu_name,
+    ot.tec_type,
+    -- jo.count AS dse_count,
+    -- jo.count_ready AS dse_count_ready,
+    jo.base_time,
+    -- jo.prep_time,
+    -- wcm.tech_type_id as wc_type,
+    ot.dse
+FROM 
+    cube_job_opers jo
+    INNER JOIN cube_jobs j ON j.cube_job_id = jo.cube_job_id
+    INNER JOIN cube_specification spec ON spec.cube_specification_id = j.cube_spec_id
+    LEFT JOIN programm_dse_link dl ON dl.ind = spec.spec_id
+    LEFT JOIN programm_dse pd ON pd.ind = dl.programm_dse_id
+    INNER JOIN ort_operations oo ON oo.ind = jo.operation_id
+    INNER JOIN ort_technologyes ot ON ot.ind = oo.oper_technology
+    INNER JOIN programm_order po ON po.ind = pd.programm_order
+    LEFT JOIN production_groups pg ON pg.ind = po.order_group
+    LEFT JOIN business_units bu ON bu.ind = po.business_unit
+    INNER JOIN dse_main dm ON dm.dm_index = ot.dse
+    INNER JOIN dse_classes dc ON dc.ind = dm.dm_class_id
+    LEFT JOIN mv_dse_material_hire mh ON mh.dm_index = dm.dm_index
+    LEFT JOIN tools_operations too ON too.ind = oo.oper_type
+    LEFT JOIN tools_group tg ON tg.ind = oo.tool_group
+    LEFT JOIN tarif_scale ts ON ts.ind = oo.tarif_scale
+    LEFT JOIN ort_trades pr ON (ot.is_wshop = 0 AND pr.ind || '' = oo.trade_code) 
+                           OR (ot.is_wshop = 1 AND pr.code = oo.trade_code)
+WHERE 
+    jo.count - jo.count_ready > 0
+    AND jo.dep_id IN (2, 3, 29, 4, 12, 14)
+    AND oo.oper_type != 369
+    AND NOT EXISTS (
+        SELECT 1 
+        FROM cube_job_resources r 
+        WHERE r.cube_job_id = jo.cube_job_id
+    )
+""",
+
+# Выбор операций для предсказаний
+"oper_for_predict":"""
+SELECT DISTINCT 
+    jo.operation_id, 
+    jo.dep_id
+FROM 
+    cube_job_opers jo
+INNER JOIN 
+    ort_operations oo ON oo.ind = jo.operation_id
+WHERE 
+    NOT EXISTS (
+        SELECT 1 
+        FROM cube_job_resources r
+        WHERE r.cube_job_id = jo.cube_job_id
+    )
+    AND oo.oper_type NOT IN(369) -- Исключения для типов операций
+    AND jo.count - jo.count_ready > 0
+""",
+# Вставка предсказанного ресурса
+"insert_resourse": """
+INSERT INTO 
+    cube_job_resources (cube_job_id, resource_id)
+VALUES 
+    (:cube_job_id, :resource_id)
+""",
+# Возвращает аттрибуты предсказанного ресурса
+"get_res_atr": """
+SELECT 
+    w.wc_id
+FROM 
+    wc_main w
+WHERE 
+    w.dep_id = (
+        SELECT 
+            ww.ind 
+        FROM 
+            workshop ww 
+        WHERE 
+            ww.short_name = :worshop_short_name
+    )
+    AND w.class_num_ws = :class_num
+    AND w.is_deleted = 0
 """
 }
