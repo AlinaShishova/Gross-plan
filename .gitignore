@@ -17,3 +17,5 @@ catboost_info/catboost_training.json
 models
 catboost_info
 
+all_jobs.csv
+prediction.log
