@@ -14,6 +14,8 @@ def execute_query(query_name, params=None):
     :param params: Словарь параметров для передачи в SQL (например, {"dm_index_where": 123456})
     :return: Список кортежей с результатами запроса
     """
+    connection = None
+    cursor = None
     results = []
 
     try:
