@@ -24,20 +24,25 @@
 </form>
 
 {% if table_data %}
-<table class="table table-bordered mt-4">
+<table class="table table-bordered mt-4" style="table-layout: fixed;">
     <thead>
         <tr>
-            <th>ID</th>
-            <th>Цех</th>
-            <th>Наименование</th>
+            <th style="width: 200px;">Наименование</th>
+            {% for month in months %}
+            <th>{{ month }}</th>
+            {% endfor %}
         </tr>
     </thead>
     <tbody>
         {% for row in table_data %}
         <tr>
-            <td>{{ row[0] }}</td>
-            <td>{{ row[1] }}</td>
             <td>{{ row[2] }}</td>
+            {% for month in months %}
+            <td>
+
+            </td>
+            {% endfor %}
+
         </tr>
         {% endfor %}
     </tbody>
@@ -45,6 +50,14 @@
 {% endif %}
 
 </div>
+
+
+<style>
+  table td, table th {
+    height: 50px;
+    vertical-align: middle; 
+  }
+</style>
 
 
 {% endblock %}    

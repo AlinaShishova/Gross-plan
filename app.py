@@ -8,6 +8,7 @@ from routes.auth import auth_bp
 from routes.keys import keys_bp
 from routes.assembly import assembly_bp
 from routes.sheme import scheme_bp
+from datetime import datetime
 
 
 app = Flask(__name__, static_url_path='/static', static_folder='static')
@@ -426,7 +427,11 @@ def test_jobs(cc_id):
 @login_required
 def schedule():
     dep_id = request.args.get('dep_id')  # получаем выбранный цех (если есть)
-
+    all_months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+          'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+    now = datetime.now()
+    current_month = now.month
+    months = all_months[current_month-1 :]
     try:
         workshops = db_oracle.execute_query("select_dep")
         table_data = []
@@ -439,7 +444,7 @@ def schedule():
         workshops = []
         table_data = []
 
-    return render_template('schedule.html', workshops=workshops, table_data=table_data)
+    return render_template('schedule.html', workshops=workshops, table_data=table_data, months = months)
  
 
 if __name__ == '__main__':
