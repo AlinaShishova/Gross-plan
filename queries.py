@@ -665,6 +665,7 @@ FROM
     wc_main m
 JOIN 
     workshop w ON w.ind = m.dep_id
+        order by dep_name
 
 """
 , 
@@ -672,11 +673,14 @@ JOIN
     """
     SELECT 
     m.wc_id,
-    (SELECT w.short_name FROM workshop w WHERE w.ind = m.dep_id) AS dep_name,
+    w.short_name AS dep_name,
     m.name
-    FROM 
+FROM 
     wc_main m
-    WHERE m.dep_id = :dep_id 
+JOIN 
+    workshop w ON w.ind = m.dep_id
+WHERE 
+    w.short_name = :dep_id 
 
 """
 }
